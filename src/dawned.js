@@ -44,7 +44,7 @@
 	 */
 	function initDawnedConfig() {
 		var scripts = document.getElementsByTagName('script') || [];
-		var reg = /dawned\.seed\.(src\.|\b)*js.*$/ig;
+		var reg = /dawned\.(src\.|\b)*js.*$/ig;
 
 		for (var i = 0; i < scripts.length; i++) {
 			var src = scripts[i].getAttribute("src");
@@ -108,12 +108,12 @@
 	function amdLoaderLoaded(e) {
 		var configModel = Dawned.notpackaged ? [Dawned.dir + 'config.js'] : ['config'];
 		require(configModel, function() {
-			var reqs = [];
+			var reqs = ['AppStart'];
 
 			if (!Dawned.notpackaged) {
-				define("$", function() {
+				define('$', function() {
 				});
-				define("_", function() {
+				define('_', function() {
 				});
 			}
 			require(['$','_'], function() {

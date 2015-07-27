@@ -4,9 +4,6 @@
  * @namespace
  * @description
  */
-define(['App'], function(App) {
-	
-	Dawned.instance = new App({});
+define([], function() {
 
-	return Dawned.instance;
 });

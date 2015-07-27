@@ -39,6 +39,10 @@ define(function() {
       if (parent.prototype.__constructor__) {
         sup__constructor__ = parent.prototype.__constructor__;
       }
+      
+      if(!parent.subclasses){
+      	parent.subclasses = [];
+      }
 
       var subclass = function() {};
       subclass.prototype = parent.prototype;
