@@ -26,6 +26,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer,Path) {
 	
 	App.prototype.loadView =  function(url){
 		var path = Path.parseUrl(url);
+		
 	};
 	
 	App.prototype.switchView =  function(){
