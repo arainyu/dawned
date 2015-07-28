@@ -1,9 +1,10 @@
 /**
- * @copyright http://www.wingontravel.com
- * @author zx.yu(zx.yu@ctrip.com)
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
  * @namespace
  * @description
  */
-define([], function() {
- alert("d");
-});
+require.config({
+	"paths" : {
+	}
+}); 

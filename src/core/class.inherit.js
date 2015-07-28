@@ -1,7 +1,7 @@
 /**
  * @namespace Common.CoreInherit
  * @description Class类，框架的基础类体系
- * @author zx.yu@ctrip.com
+ * @author abcily@126.com
  */
 define(function() {
 

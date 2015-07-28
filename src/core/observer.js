@@ -1,6 +1,6 @@
 /**
- * @copyright http://www.wingontravel.com
- * @author zx.yu(zx.yu@ctrip.com)
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
  * @namespace CoreObserver
  * @description 消息观察者（订阅）
  */

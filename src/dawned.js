@@ -1,6 +1,6 @@
 /**
- * @copyright http://www.wingontravel.com
- * @author zx.yu(zx.yu@ctrip.com)
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
  * @namespace
  * @description
  */
@@ -26,16 +26,16 @@
 		 * 检测不到require属性，视为没有打包
 		 */
 		notpackaged : typeof require == 'undefined',
-		
+
 		/**
-		 * dawned调用文件目录 
+		 * dawned调用文件目录
 		 */
-		dir: '',
-		
+		dir : '',
+
 		/**
 		 * 本地配置目录
 		 */
-		pdConfig: {}
+		pdConfig : {}
 	};
 
 	/*
@@ -53,7 +53,7 @@
 				Dawned.dir = src.replace(reg, '');
 
 				var configStr = scripts[i].getAttribute("pdConfig") || '';
-				Dawned.pdConfig = JSON.parse('["' + configStr.split(',').join('","') + '"]');
+				Dawned.pdConfig = configStr.split(',');
 
 				break;
 			}
@@ -67,11 +67,21 @@
 	 */
 	function loadScript(url, callback) {
 		var script = document.createElement("script");
+		var header = document.head || document.getElementsByTagName('head')[0];
 		script.type = "text/javascript";
 		script.async = true;
-		script.onload = callback;
+		if (script.attachEvent && !(script.attachEvent.toString && script.attachEvent.toString().indexOf('[native code') < 0)) {
+			script.attachEvent('onreadystatechange', function() {
+				if (script.readyState === 'loaded' || script.readyState === 'complete') {
+					script.onreadystatechange = null;
+					callback();
+				}
+			});
+		} else {
+			script.addEventListener('load', callback, false);
+		}
 		script.src = url;
-		document.head.appendChild(script);
+		header.appendChild(script);
 	}
 
 	/*
@@ -82,7 +92,7 @@
 	function mutileLoad(scripts, callback) {
 		var len = scripts.length;
 		var no = 0;
-		
+
 		if (!len) {
 			end();
 			return;
@@ -116,7 +126,7 @@
 				define('_', function() {
 				});
 			}
-			require(['$','_'], function() {
+			require(['libs'], function() {
 				require(reqs, function() {
 					if (_.isFunction(arguments[arguments.length - 1])) {
 						arguments[arguments.length - 1]();
@@ -142,6 +152,6 @@
 	initDawnedConfig();
 	//加载资源文件
 	loadRes();
-	
+
 	window.Dawned = Dawned;
 })();

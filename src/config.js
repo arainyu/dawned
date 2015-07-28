@@ -1,9 +1,9 @@
 define(function () {
-    require.config({
+	var configs = {
         waitSeconds: 20,
         shim: {
             $: {
-                exports: 'zepto'
+                exports: '$'
             },
             _: {
                 exports: '_'
@@ -13,7 +13,7 @@ define(function () {
                 exports: 'libs'
             }
         },
-        "paths": {
+        paths: {
             "json2": Dawned.dir + "3rdlibs/json2",
             "R": Dawned.dir + "3rdlibs/require",
             '$': Dawned.dir + "3rdlibs/jquery-1.11.3.min",
@@ -43,5 +43,11 @@ define(function () {
             'PageBaseController': Dawned.dir + "page/base.controller",
             'PageBaseView': Dawned.dir + "page/base.view"
         }
-    });
+   };
+    
+    if("undefined" == typeof JSON || typeof JSON.parse !== 'function' || typeof JSON.stringify !== 'function'){
+    	configs.shim.libs.deps.push('json2');
+    }
+    
+    require.config(configs);
 });

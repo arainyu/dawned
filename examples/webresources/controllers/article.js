@@ -4,6 +4,10 @@
  * @namespace
  * @description
  */
-define([], function(){
-	
+define([], function() {
+	return {
+		onCreate: function(){
+			$('body').html('<h1>the second view</h1>');
+		}
+	};
 });

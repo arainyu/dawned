@@ -1,13 +1,17 @@
 /**
- * @copyright http://www.wingontravel.com
- * @author zx.yu(zx.yu@ctrip.com)
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
  * @namespace
  * @description
  */
-define(['CoreInherit', 'AbstractApp'], function(CoreInherit, AbstractApp) {
+define(['CoreInherit', 'AbstractApp', 'UtilsPath'], function(CoreInherit, AbstractApp, Path) {
 	var App = CoreInherit.Class(AbstractApp, {
 		start: function(){
-			this.loadView(location.href);
+			var hash = Path.parseUrl(location.href).hash;
+			if(!hash){
+				hash = '';
+			}
+			this.goTo(hash);
 		}
 	});
 	

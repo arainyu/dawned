@@ -1,12 +1,19 @@
 /**
- * @copyright http://www.wingontravel.com
- * @author zx.yu(zx.yu@ctrip.com)
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
  * @namespace
  * @description
  */
 define(['App'], function(App) {
 	
-	Dawned.instance = new App({});
-
-	return Dawned.instance;
+	var app = new App({}),
+		interfaces = app.interface();
+	
+	Dawned.instance = app;
+	
+	for(var key in interfaces){
+		Dawned[key] = $.proxy(interfaces[key], app);
+	}
+	
+	return app;
 });
