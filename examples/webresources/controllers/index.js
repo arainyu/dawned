@@ -8,7 +8,7 @@ define(['CoreInherit', 'PageAbstractController', 'ViewIndex', 'ModelIndex'], fun
 	var Controller = CoreInherit.Class(AbstractController, {
 		__constructor__: function(){
 			this.view = new ViewIndex();
-			this.model = ModelIndex;
+			this.model = new ModelIndex();
 		},
 		onCreate: function(){
 			

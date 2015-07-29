@@ -9,8 +9,8 @@ define(['CoreInherit', 'UtilsParser', 'Handlebars'], function(CoreInherit, Utils
 		
 		__constructor__: function(){
 			this.pageUrl = '';
-			this.id = '';
-			this.$el = $('<div id="'+UtilsParser.getViewId()+'" />');
+			this.id = UtilsParser.getViewId();
+			this.$el = $('<div id="'+this.id+'" />');
 			this.els = {};
 			this.tplHtml = null;
 			this.onBeforeCreate = null;

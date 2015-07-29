@@ -25,6 +25,7 @@ define(function () {
             //core
             "CoreInherit": Dawned.dir + "core/class.inherit",
             "CoreObserver": Dawned.dir + "core/observer",
+            "CoreAjax": Dawned.dir + "core/ajax",
             
             //data
             "AbstractModel": Dawned.dir + "data/model/abstract.model",

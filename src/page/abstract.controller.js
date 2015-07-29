@@ -35,10 +35,11 @@ define(['CoreInherit'], function(CoreInherit) {
 			}
 		},
 		
-		create: function(){
+		create: function(url){
 			this.onBeforeCreate && this.onBeforeCreate();
 			
 			this.showLoading();
+			this.view.pageUrl = url;
 			this.view.create(this.$viewport);
 			this.onCreate && this.onCreate();
 			
@@ -47,15 +48,21 @@ define(['CoreInherit'], function(CoreInherit) {
 		
 		render: function(){
 			if(this.model){
-				this.model.excute(_.bind(function(data){
+				var success = _.bind(function(data){
 					this.view.render(data);
-					this.show();
-					this.hideLoading();
-				},this), _.bind(function(){
+				},this);
+				
+				var error = _.bind(function(){
 					this.view.loadModelFailed();
+				},this);
+				
+				var complete =_.bind(function(data){
 					this.show();
 					this.hideLoading();
-				},this));
+				},this);
+				
+				this.model.excute(success, error, complete, this);
+				
 			}else{
 				this.view.render();
 			}

@@ -81,5 +81,9 @@ var Path = {};
         return urlParams;
     };
 
+	Path.isUrl = function(url){
+		return /^http(s)?:\/\/[A-Za-z0-9\-]+\.[A-Za-z0-9]+[\/=\?%\-&_~`@[\]\:+!]*([^<>])*$/.test(url);
+	};
+	
 	return Path;
 });

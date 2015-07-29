@@ -5,8 +5,13 @@
     module.exports = new Model(options);//NodeJs
   }else{
     if(typeof define === 'function'){
-      define(['AbstractModel'], function(Model) {
-        return new Model(options);
+      define(['CoreInherit', 'AbstractModel'], function(CoreInherit, AbstractModel) {
+        return CoreInherit.Class(AbstractModel,{
+        	__constructor__:function(){
+        		this.url = options.path;
+        		this.method = 'GET';
+        	}
+        });
       });
     }
   }

@@ -73,7 +73,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 
 		require(['controllers/' + controllerStr], function(Controller) {
 			var controller = new Controller(App.defaults.$viewport);
-			controller.create();
+			controller.create(controllerStr);
 		});
 	};
 

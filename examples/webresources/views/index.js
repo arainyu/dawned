@@ -9,7 +9,7 @@ define(['CoreInherit', 'PageAbstractView', 'text!tplIndex'], function(CoreInheri
 	var View = CoreInherit.Class(AbstractView, {
 		__constructor__: function(){
 			this.tplHtml = tplIndex;
-		},
+		}
 	});
 	
 	return View;
