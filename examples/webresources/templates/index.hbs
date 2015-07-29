@@ -1,0 +1,12 @@
+<h1>{{title}}</h1>
+<p><span>{{date}}</span> <span>{{author}}</span></p>
+<p>{{{content}}}</p>
+
+<ul>
+  {{#each comments}}
+  <li>
+  	<p><span>{{date}}</span> <span>{{author}}</span></p>
+  	<p>{{{body}}}</p>
+  </li>
+  {{/each}}
+</ul>

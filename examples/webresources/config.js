@@ -5,6 +5,15 @@
  * @description
  */
 require.config({
-	"paths" : {
+	baseUrl : 'webresources/',
+	paths : {
+		//views
+		'ViewIndex' : 'views/index',
+
+		//views
+		'ModelIndex' : 'models/index',
+
+		//template
+		'tplIndex' : 'templates/index.hbs'
 	}
-}); 
+});

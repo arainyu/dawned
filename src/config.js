@@ -9,7 +9,7 @@ define(function () {
                 exports: '_'
             },
             libs: {
-                deps: ['$', '_'],
+                deps: ['$', '_', 'text'],
                 exports: 'libs'
             }
         },
@@ -20,6 +20,7 @@ define(function () {
             '_': Dawned.dir + "3rdlibs/underscore",
             "libs": Dawned.dir + "3rdlibs/libs",
             "text": Dawned.dir + "3rdlibs/require.text",
+            "Handlebars": Dawned.dir + "3rdlibs/handlebars",
             
             //core
             "CoreInherit": Dawned.dir + "core/class.inherit",
@@ -32,6 +33,7 @@ define(function () {
             
             //utils
             'UtilsPath': Dawned.dir + "utils/path",
+            'UtilsParser': Dawned.dir + "utils/parser",
             
             //app
             'AppStart': Dawned.dir + "app/app.start",
@@ -40,8 +42,8 @@ define(function () {
             'App': Dawned.dir + "app/app",
             
             //page
-            'PageBaseController': Dawned.dir + "page/base.controller",
-            'PageBaseView': Dawned.dir + "page/base.view"
+            'PageAbstractController': Dawned.dir + "page/abstract.controller",
+            'PageAbstractView': Dawned.dir + "page/abstract.view"
         }
    };
     

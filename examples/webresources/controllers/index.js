@@ -4,15 +4,15 @@
  * @namespace
  * @description
  */
-define([], function() {
-	return {
-		onCreate : function() {
-
-			$('body').html("<h1>Come on, I'm the first view.</h1><a href=\"#\" id=\"swith_page\" >切换页面</a>");
-
-			$('#swith_page').on('click', function(e) {
-				Dawned.goTo('article');
-			});
+define(['CoreInherit', 'PageAbstractController', 'ViewIndex', 'ModelIndex'], function(CoreInherit, AbstractController, ViewIndex, ModelIndex) {
+	var Controller = CoreInherit.Class(AbstractController, {
+		__constructor__: function(){
+			this.view = new ViewIndex();
+			this.model = ModelIndex;
+		},
+		onCreate: function(){
+			
 		}
-	};
+	});
+	return Controller;
 });

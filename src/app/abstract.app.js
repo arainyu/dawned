@@ -8,6 +8,11 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	var App = function(options) {
 		this.initialize(options);
 	};
+	
+	App.defaults = {
+		$main: $('#main'),
+		$viewport: $('.main-viewport')
+	},
 
 	App.statusEvents = {
 		VIEW_READY : 'viewready',
@@ -25,7 +30,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	App.prototype.bindEvent = function(handle) {
 		this._hideHyperlink();
 		
-		$(window).bind('hashchange', _.bind(function(e) {
+		$(window).on('hashchange', _.bind(function(e) {
 			alert('d');
 		}, this));
 	};
@@ -66,8 +71,9 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 
 	App.prototype.loadView = function(controllerStr) {
 
-		require(['webresources/controllers/' + controllerStr], function(controller) {
-			controller.onCreate();
+		require(['controllers/' + controllerStr], function(Controller) {
+			var controller = new Controller(App.defaults.$viewport);
+			controller.create();
 		});
 	};
 

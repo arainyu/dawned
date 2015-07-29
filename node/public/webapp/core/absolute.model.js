@@ -13,7 +13,7 @@ define(['jquery'], function($) {
 		};
 
 		this.dataFormate = options.dataFormate || function(data) {
-			return data
+			return data;
 		};
 
 	};
