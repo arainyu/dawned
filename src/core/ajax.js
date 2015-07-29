@@ -47,6 +47,7 @@ define([], function() {
 
 		function cros(url, type, data, callback, error, complete, timeout) {
 			var contentType = data.contentType;
+			var crossDomain = url.indexOf(window.location.host) === -1;
 
 			if (type.toLowerCase() !== 'get') {
 				data = JSON.stringify(data);
@@ -54,11 +55,11 @@ define([], function() {
 			var opt = _getCommonOpt(url, data, callback, error, complete);
 			opt.type = type;
 			opt.dataType = 'json';
-			opt.crossDomain = true;
+			opt.crossDomain = crossDomain;
 			opt.data = data;
 			opt.contentType = _getContentType(contentType) || 'application/json';
 			opt.timeout = timeout;
-			if (window.XDomainRequest) {
+			if (window.XDomainRequest && crossDomain) {
 				return _iecros(opt);
 			} else {
 				return _sendReq(opt);
