@@ -4,10 +4,19 @@
  * @namespace
  * @description
  */
-define([], function() {
-	return {
-		onCreate: function(){
-			$('body').html('<h1>the second view</h1>');
+define(['CoreInherit', 'PageAbstractController', 'ViewArticle', 'ModelArticle'], function(CoreInherit, AbstractController, ViewArticle, ModelArticle) {
+	var Controller = CoreInherit.Class(AbstractController, {
+		__constructor__ : function() {
+			this.view = new ViewArticle();
+		},
+		onRender : function() {
+			var model = new ModelArticle();
+
+			model.excute(_.bind(function(data) {
+				this.view.renderComments(data);
+			}, this));
 		}
-	};
+	});
+	return Controller;
 });
+

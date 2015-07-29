@@ -13,29 +13,34 @@ define(['CoreInherit', 'UtilsParser', 'Handlebars'], function(CoreInherit, Utils
 			this.$el = $('<div id="'+this.id+'" />');
 			this.els = {};
 			this.tplHtml = null;
-			this.onBeforeCreate = null;
-			this.onRender = null;
-			this.onCreate = null;
-			this.onHide = null;
-			this.onShow = null;
-			this.onDestroy = null;
 		},
+		
+		onBeforeCreate:null,
+		onCreate: null,
+		onRender: null,
+		onHide: null,
+		onShow: null,
+		onDestroy: null,
+		
+		events: {},
 		
 		create: function($viewport){
 			this.onBeforeCreate && this.onBeforeCreate();
 			
-			this.$el.attr('page-url',this.pageUrl);
-			
-			this.hide();
+			this.$el.attr('page-url',this.pageUrl).hide();
 			this.$el.appendTo($viewport);
 			
 			this.onCreate && this.onCreate();
 		},
 		
+		template: function(tpl, data){
+			var _tpl = Handlebars.compile(tpl);
+			return _tpl(data);
+		},
+		
 		render: function(model){
 			if(model && this.tplHtml){
-				var tpl = Handlebars.compile(this.tplHtml);
-				this.$el.html(tpl(model));
+				this.$el.html(this.template(this.tplHtml, model));
 			}
 			
 			this.onRender && this.onRender();
@@ -53,7 +58,7 @@ define(['CoreInherit', 'UtilsParser', 'Handlebars'], function(CoreInherit, Utils
 		
 		show: function(){
 			this.$el.show();
-			this.onHide && this.onHide();
+			this.onShow && this.onShow();
 		},
 		
 		destroy: function(){

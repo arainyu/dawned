@@ -11,7 +11,12 @@ define(['CoreInherit', 'PageAbstractController', 'ViewIndex', 'ModelIndex'], fun
 			this.model = new ModelIndex();
 		},
 		onCreate: function(){
-			
+			this.view.$el.append($('<p>index controller onCreated.</p>'));
+		},
+		onRender: function(){
+			this.view.$el.find('.index-title').on('click', function(){
+				Dawned.goTo('article');
+			});
 		}
 	});
 	return Controller;

@@ -5,104 +5,109 @@
  * @description
  */
 define(['CoreInherit'], function(CoreInherit) {
-	var Controller = CoreInherit.Class({		
-		
-		__constructor__: function(){
+	var Controller = CoreInherit.Class({
+
+		__constructor__ : function() {
 			this.view = null;
 			this.model = null;
 			this.$viewport = null;
 			this.$loading = null;
-			this.onBeforeCreate = null;
-			this.onCreate = null;
-			this.onHide = null;
-			this.onShow = null;
-			this.onDestroy = null;
-			this.onRender = null;
 		},
-		
-		initialize: function($viewport){
-			if(!this.view){
+
+		onBeforeCreate : null,
+		onCreate : null,
+		onRender : null,
+		onHide : null,
+		onShow : null,
+		onDestroy : null,
+
+		initialize : function($viewport) {
+			if (!this.view) {
 				throw '找不到相关view';
 			}
 			this.setViewport($viewport);
 		},
-		
-		setViewport: function($viewport){			
-			if($viewport){
+
+		setViewport : function($viewport) {
+			if ($viewport) {
 				this.$viewport = $viewport;
-			}else if(!this.$viewport){
+			} else if (!this.$viewport) {
 				this.$viewport = $('body');
 			}
 		},
-		
-		create: function(url){
+
+		create : function(url) {
 			this.onBeforeCreate && this.onBeforeCreate();
-			
+
 			this.showLoading();
 			this.view.pageUrl = url;
 			this.view.create(this.$viewport);
 			this.onCreate && this.onCreate();
-			
+
 			this.render();
 		},
-		
-		render: function(){
-			if(this.model){
-				var success = _.bind(function(data){
+
+		render : function() {
+
+			var complete = _.bind(function(data) {
+				this.onRender && this.onRender();
+				this.show();
+				this.hideLoading();
+			}, this);
+			
+			if (this.model && this.model.url) {
+				var success = _.bind(function(data) {
 					this.view.render(data);
-				},this);
-				
-				var error = _.bind(function(){
+				}, this);
+
+				var error = _.bind(function() {
 					this.view.loadModelFailed();
-				},this);
-				
-				var complete =_.bind(function(data){
-					this.show();
-					this.hideLoading();
-				},this);
-				
+				}, this);
+
 				this.model.excute(success, error, complete, this);
-				
-			}else{
+
+			} else {
 				this.view.render();
+				complete();
 			}
-			this.onRender && this.onRender();
 		},
-		
-		hide: function(){
+
+		hide : function() {
 			this.view.hide();
 			this.onHide && this.onHide();
 		},
-		
-		show: function(){
+
+		show : function() {
 			this.view.show();
 			this.onHide && this.onHide();
 		},
-		
-		destroy: function(){
+
+		destroy : function() {
 			this.view.destroy();
 			this.onDestroy && this.onDestroy();
 		},
-		
-		showLoading: function(){
-			if(this.$loading){
+
+		showLoading : function() {
+			if (this.$loading) {
 				this.$loading.show();
-			}else{
+			} else {
 				this.$loading = $('<div>加载中...</div>');
 				this.$viewport.append(this.$loading);
 			}
 		},
-		
-		hideLoading:function(){
-			if(this.$loading){
+
+		hideLoading : function() {
+			if (this.$loading) {
 				this.$loading.hide();
 			}
 		},
-		
-		showMessage: function(){},
-		
-		showMask: function(){}
+
+		showMessage : function() {
+		},
+
+		showMask : function() {
+		}
 	});
-	
+
 	return Controller;
 });

@@ -141,7 +141,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			}, this);
 
 			if (this.contentType === AbstractModel.CONTENT_TYPE_JSON) {
-				return this.ajax = CoreAjax.cros(url, this.method, params, _onSuccess, _onError, _onComplte, self.timeout);
+				return this.ajax = CoreAjax.cros(url, this.method, params, _onSuccess, _onError, _onComplte, this.timeout);
 			} else if (this.contentType === AbstractModel.CONTENT_TYPE_JSONP) {
 				return this.ajax = CoreAjax.jsonp(url, params, _onSuccess, _onError, _onComplte, this.timeout);
 			} else {
