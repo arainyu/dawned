@@ -4,20 +4,20 @@
  * @namespace
  * @description
  */
+var baseUrl = 'webresources/';
 require.config({
-	baseUrl : 'webresources/',
 	paths : {
 		//views
-		'ViewIndex' : 'views/index',
-		'ViewArticle': 'views/article',
+		'ViewIndex' : baseUrl + 'views/index',
+		'ViewArticle' : baseUrl + 'views/article',
 
 		//views
-		'ModelIndex' : 'models/index',
-		'ModelArticle': 'models/article',
+		'ModelIndex' : baseUrl + 'models/index',
+		'ModelArticle' : baseUrl + 'models/article',
 
 		//template
-		'tplIndex' : 'templates/index.hbs',
-		'tplArticle' : 'templates/article.hbs',
-		'tplComment' : 'templates/article/comments.hbs'
+		'tplIndex' : baseUrl + 'templates/index.hbs',
+		'tplArticle' : baseUrl + 'templates/article.hbs',
+		'tplComment' : baseUrl + 'templates/article/comments.hbs'
 	}
 });

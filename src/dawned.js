@@ -36,16 +36,16 @@
 		 * 本地配置目录
 		 */
 		pdConfig : {},
-		
+
 		/**
 		 * 站点基本文件路径（或者虚拟目录，两边到'/'）
 		 */
-		baseUrl: '',
-	
+		baseUrl : '',
+
 		/**
 		 * controllers文件放置路径（baseUrl后面）
 		 */
-		controllersPath: 'controllers/'
+		controllersPath : 'controllers/'
 	};
 
 	/*
@@ -67,6 +67,33 @@
 
 				break;
 			}
+		}
+	}
+
+	function initMetaConfig($) {
+		var metas = $('meta');
+
+		for (var i = 0, len = metas.length; i < len; i++) {
+			var $meta = $(metas[i]);
+			if ($meta.attr('dawned')) {
+				var value = $meta.attr('content');
+
+				switch(value.toLowerCase()) {
+					case 'false':
+						value = false;
+					case 'true':
+						value = true;
+				}
+
+				Dawned[$meta.attr('name')] = value;
+			}
+		}
+		resetControllersPath();
+	}
+	
+	function resetControllersPath(){
+		if(Dawned.controllersPath.indexOf(Dawned.baseUrl) === -1){
+			Dawned.controllersPath = Dawned.baseUrl + Dawned.controllersPath;
 		}
 	}
 
@@ -137,6 +164,7 @@
 				});
 			}
 			require(['libs'], function() {
+				initMetaConfig($);
 				require(reqs, function() {
 					if (_.isFunction(arguments[arguments.length - 1])) {
 						arguments[arguments.length - 1]();

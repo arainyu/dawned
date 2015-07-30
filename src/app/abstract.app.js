@@ -81,7 +81,8 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 		if (controller) {
 			this.switchView(controller, this.curController);
 		} else {
-			var controllerPath = Dawned.controllersPath + controllerName;
+			var ext = Dawned.controllersPath.indexOf('/') === 0 ? '.js' : '';
+			var controllerPath = Dawned.controllersPath + controllerName + ext;
 			require([controllerPath], function(Controller) {
 				controller = new Controller(App.defaults.$viewport);
 				controller.create(controllerName);
