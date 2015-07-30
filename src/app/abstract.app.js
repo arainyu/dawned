@@ -8,31 +8,36 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	var App = function(options) {
 		this.initialize(options);
 	};
-	
-	App.defaults = {
-		$main: $('#main'),
-		$viewport: $('.main-viewport')
-	},
 
-	App.statusEvents = {
-		VIEW_READY : 'viewready',
-		SWITCH_CHANGE : 'switchchange'
+	App.defaults = {
+		$main : $('#main'),
+		$viewport : $('.main-viewport')
+	}, App.statusEvents = {
+		VIEW_READY : 'viewready'
 	};
 
 	App.prototype.initialize = function() {
 		this.bindEvent();
+
+		this.curController = null;
+		this.controllers = {};
 	};
 
 	App.prototype.viewReady = function(handle) {
 		Observer.subscribe(App.VIEW_READY, handle);
 	};
 
-	App.prototype.bindEvent = function(handle) {
+	App.prototype.bindEvent = function() {
 		this._hideHyperlink();
-		
+
 		$(window).on('hashchange', _.bind(function(e) {
-			alert('d');
+			var controllerName = Path.getControllerNameByHash(window.location.hash);
+
+			if (controllerName !== this.curController.name) {
+				this.loadView(controllerName);
+			}
 		}, this));
+
 	};
 
 	App.prototype._hideHyperlink = function() {
@@ -69,47 +74,73 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 
 	};
 
-	App.prototype.loadView = function(controllerStr) {
+	App.prototype.loadView = function(controllerName) {
+		var self = this;
+		var controller = self.controllers[controllerName];
 
-		require(['controllers/' + controllerStr], function(Controller) {
-			var controller = new Controller(App.defaults.$viewport);
-			controller.create(controllerStr);
-		});
-	};
+		if (controller) {
+			this.switchView(controller, this.curController);
+		} else {
+			var controllerPath = Dawned.controllersPath + controllerName;
+			require([controllerPath], function(Controller) {
+				controller = new Controller(App.defaults.$viewport);
+				controller.create(controllerName);
 
-	App.prototype.switchView = function(inView, outView) {
-		
-	};
+				self.switchView(controller, self.curController);
 
-	App.prototype.goTo = function(hash) {
-		var controller = hash;
+				self.controllers[controllerName] = self.curController;
 
-		if (!hash || hash == '' || hash == '#' || hash == '#!') {
-			controller = '#!index';
+			});
 		}
 
-		if (controller.indexOf('#!') > -1) {
-			controller = controller.replace('#!', '');
+	};
+
+	App.prototype.switchView = function(inController, outController) {
+		outController && outController.hide();
+		inController.show();
+
+		this.curController = inController;
+	};
+
+	App.prototype.goTo = function(controllerName) {
+		if (!controllerName) {
+			controllerName = 'index';
 		}
 
-		window.location.hash = '!' + controller;
+		window.location.hash = '!' + controllerName;
 
-		this.loadView(controller);
+		this.loadView(controllerName);
 	};
 
-	App.prototype.goBack = function() {
+	App.prototype.goBack = function(controllerName) {
+		if (!controllerName) {
+			history.back();
+			return;
+		}
+
+		this.goTo(controllerName);
 	};
 
-	App.prototype.forward = function() {
+	App.prototype.forward = function(controllerName) {
+		this.goTo(controllerName);
 	};
 
-	App.prototype.back = function() {
+	App.prototype.back = function(controllerName) {
+		this.goBack(controllerName);
 	};
 
-	App.prototype.go = function() {
+	App.prototype.go = function(controllerName) {
+		this.goTo(controllerName);
 	};
 
 	App.prototype.jump = function() {
+		var openUrl = url;
+		if (!Path.isUrl(url)) {
+			var domain = window.location.protocol + '//' + window.location.host;
+			openUrl = domain + url;
+		}
+
+		window.location.href = openUrl;
 	};
 
 	App.prototype.interface = function() {
@@ -122,7 +153,8 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			forward : self.forward,
 			back : self.back,
 			go : self.go,
-			jump : self.jump
+			jump : self.jump,
+			curController : self.curController
 		};
 	};
 

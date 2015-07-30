@@ -6,14 +6,12 @@
  */
 define(['CoreInherit', 'AbstractApp', 'UtilsPath'], function(CoreInherit, AbstractApp, Path) {
 	var App = CoreInherit.Class(AbstractApp, {
-		start: function(){
-			var hash = Path.parseUrl(location.href).hash;
-			if(!hash){
-				hash = '';
-			}
-			this.goTo(hash);
+		start : function() {
+			var controllerName = Path.getControllerNameByUrl(location.href);
+			
+			this.goTo(controllerName);
 		}
 	});
-	
+
 	return App;
 });

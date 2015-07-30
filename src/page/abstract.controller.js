@@ -12,6 +12,7 @@ define(['CoreInherit'], function(CoreInherit) {
 			this.model = null;
 			this.$viewport = null;
 			this.$loading = null;
+			this.name = null;
 		},
 
 		onBeforeCreate : null,
@@ -40,7 +41,7 @@ define(['CoreInherit'], function(CoreInherit) {
 			this.onBeforeCreate && this.onBeforeCreate();
 
 			this.showLoading();
-			this.view.pageUrl = url;
+			this.name = this.view.pageUrl = url;
 			this.view.create(this.$viewport);
 			this.onCreate && this.onCreate();
 
@@ -51,8 +52,6 @@ define(['CoreInherit'], function(CoreInherit) {
 
 			var complete = _.bind(function(data) {
 				this.onRender && this.onRender();
-				this.show();
-				this.hideLoading();
 			}, this);
 			
 			if (this.model && this.model.url) {
@@ -78,6 +77,7 @@ define(['CoreInherit'], function(CoreInherit) {
 		},
 
 		show : function() {
+			this.hideLoading();
 			this.view.show();
 			this.onHide && this.onHide();
 		},
@@ -106,6 +106,16 @@ define(['CoreInherit'], function(CoreInherit) {
 		},
 
 		showMask : function() {
+		},
+		
+		goTo: function(controllerName){
+			Dawned.goTo(controllerName);
+		},
+		goBack: function(controllerName){
+			Dawned.goBack(controllerName);
+		},
+		jump: function(url){
+			Dawned.jump(controllerName);
 		}
 	});
 

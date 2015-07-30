@@ -9,13 +9,13 @@
 
 		/**
 		 * Dawned 版本
-		 * @var {String} [Global.Dawned.version=1.0]
+		 * @var {String} [Dawned.version=1.0]
 		 */
 		version : "0.0.1",
 
 		/**
 		 * 当页面切换完成时调用,用于 Dawned 与外部的借口,外部可以注册这个方法
-		 * @method Global.Dawned.viewReady
+		 * @method Dawned.viewReady
 		 * @param {View} view 切换完成后,当前的view对象
 		 */
 		viewReady : function(fn) {
@@ -35,7 +35,17 @@
 		/**
 		 * 本地配置目录
 		 */
-		pdConfig : {}
+		pdConfig : {},
+		
+		/**
+		 * 站点基本文件路径（或者虚拟目录，两边到'/'）
+		 */
+		baseUrl: '',
+	
+		/**
+		 * controllers文件放置路径（baseUrl后面）
+		 */
+		controllersPath: 'controllers/'
 	};
 
 	/*
