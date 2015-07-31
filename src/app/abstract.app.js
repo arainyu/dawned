@@ -101,6 +101,8 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 		inController.show();
 
 		this.curController = inController;
+		
+		Observer.publish(App.VIEW_READY);
 	};
 
 	App.prototype.goTo = function(controllerName) {
@@ -108,7 +110,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			controllerName = 'index';
 		}
 
-		window.location.hash = '!' + controllerName;
+		window.location.hash = Path.creatHashByControllerName(controllerName);
 
 		this.loadView(controllerName);
 	};
@@ -155,7 +157,8 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			back : self.back,
 			go : self.go,
 			jump : self.jump,
-			curController : self.curController
+			curController : self.curController,
+			controllers: self.controllers
 		};
 	};
 

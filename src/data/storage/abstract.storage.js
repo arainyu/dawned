@@ -4,6 +4,14 @@
  * @namespace
  * @description
  */
-define([], function(){
+define(['CoreInherit'], function(CoreInherit){
+	var AbstractStorage = CoreInherit.Class({
+		
+		__constructor__: function(){
+			
+		}
+		
+	});
 	
+	return AbstractStorage;
 });

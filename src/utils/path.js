@@ -96,9 +96,13 @@ define([], function() {
 
 	};
 
+	Path.creatHashByControllerName = function(controllerName) {
+		return '!/'+controllerName;
+	};
+
 	Path.getControllerNameByHash = function(hash) {
-		if (hash.indexOf('#!') === 0) {
-			return hash.substr(2);
+		if (hash.indexOf('#!/') === 0) {
+			return hash.substr(3);
 		}
 
 		if (hash.indexOf('#') === 0) {
