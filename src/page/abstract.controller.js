@@ -21,6 +21,7 @@ define(['CoreInherit'], function(CoreInherit) {
 		onHide : null,
 		onShow : null,
 		onDestroy : null,
+		events: {},
 
 		initialize : function($viewport) {
 			if (!this.view) {
@@ -52,6 +53,7 @@ define(['CoreInherit'], function(CoreInherit) {
 
 			var complete = _.bind(function(data) {
 				this.onRender && this.onRender();
+				this._bindEvents();
 			}, this);
 			
 			if (this.model && this.model.url) {
@@ -69,6 +71,25 @@ define(['CoreInherit'], function(CoreInherit) {
 				this.view.render();
 				complete();
 			}
+		},		
+		
+		_bindEvents: function(){
+			var events = this.events,
+				self = this;
+			
+			if(!_.isObject(events)){
+				return;
+			}
+			
+			_.each(events, function(value, key, list){
+				var firstSpaceIndex = key.indexOf(' ');
+				var eventName = key.substr(0, firstSpaceIndex);
+				var targetSelector = key.substr(firstSpaceIndex+1);
+				var functionName = value || function(){};
+				
+				self.view.$el.find(targetSelector)
+				    .on(eventName, _.bind(self[functionName], self));
+			});
 		},
 
 		hide : function() {

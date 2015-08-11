@@ -10,13 +10,20 @@ define(['CoreInherit', 'PageAbstractController', 'ViewIndex', 'ModelIndex'], fun
 			this.view = new ViewIndex();
 			this.model = new ModelIndex();
 		},
+		
+		events: {
+			'click .index-title': 'next'
+		},
+		
 		onCreate: function(){
 			this.view.$el.append($('<p>index controller onCreated.</p>'));
 		},
+		
 		onRender: function(){
-			this.view.$el.find('.index-title').on('click', _.bind(function(){
-				this.goTo('article');
-			},this));
+		},
+		
+		next: function(){
+			this.goTo('article');
 		}
 	});
 	return Controller;
