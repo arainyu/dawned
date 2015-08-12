@@ -29,8 +29,8 @@ define(function () {
             
             //data
             "AbstractModel": Dawned.dir + "data/model/abstract.model",
-            "AbstractStorage": Dawned.dir + "data/model/abstract.storage",
-            "AbstractStore": Dawned.dir + "data/model/abstract.store",
+            "AbstractStorage": Dawned.dir + "data/storage/abstract.storage",
+            "AbstractStore": Dawned.dir + "data/store/abstract.store",
             
             //utils
             'UtilsPath': Dawned.dir + "utils/path",
