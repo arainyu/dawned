@@ -57,25 +57,14 @@ define([], function() {
 	 * @returns {Json} object
 	 */
 	Path.getUrlParams = function(url) {
-		var url = url.split('://');
 		var searchReg = /([^&=?]+)=([^&]+)/g;
 		var urlParams = {};
 		var match, value, length, name;
 
-		while ( match = searchReg.exec(url[0])) {
+		while ( match = searchReg.exec(url)) {
 			name = match[1];
 			value = match[2];
 			urlParams[name] = value;
-		}
-
-		if (url[1]) {
-			var idx = 0;
-			length = _.size(urlParams);
-			_.each(urlParams, function(value, key) {
-				if (++idx == length) {
-					urlParams[key] += '://' + url[1];
-				}
-			});
 		}
 
 		return urlParams;

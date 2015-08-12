@@ -17,8 +17,6 @@ define(function () {
             "json2": Dawned.dir + "3rdlibs/json2",
             "R": Dawned.dir + "3rdlibs/require",
             '$': Dawned.dir + "3rdlibs/jquery-1.11.3.min",
-            '_': Dawned.dir + "3rdlibs/underscore",
-            "libs": Dawned.dir + "3rdlibs/libs",
             "text": Dawned.dir + "3rdlibs/require.text",
             "Handlebars": Dawned.dir + "3rdlibs/handlebars",
             

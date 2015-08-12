@@ -1,1 +1,1 @@
-define('libs',['$', '_'], function () {});
+define('libs',['$'], function () {});

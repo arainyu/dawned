@@ -30,7 +30,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	App.prototype.bindEvent = function() {
 		this._hideHyperlink();
 
-		$(window).on('hashchange', _.bind(function(e) {
+		$(window).on('hashchange', $.proxy(function(e) {
 			var controllerName = Path.getControllerNameByHash(window.location.hash);
 
 			if (controllerName !== this.curController.name) {

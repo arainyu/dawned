@@ -51,17 +51,17 @@ define(['CoreInherit'], function(CoreInherit) {
 
 		render : function() {
 
-			var complete = _.bind(function(data) {
+			var complete = $.proxy(function(data) {
 				this.onRender && this.onRender();
 				this._bindEvents();
 			}, this);
 			
 			if (this.model && this.model.url) {
-				var success = _.bind(function(data) {
+				var success = $.proxy(function(data) {
 					this.view.render(data);
 				}, this);
 
-				var error = _.bind(function() {
+				var error = $.proxy(function() {
 					this.view.loadModelFailed();
 				}, this);
 
@@ -77,18 +77,18 @@ define(['CoreInherit'], function(CoreInherit) {
 			var events = this.events,
 				self = this;
 			
-			if(!_.isObject(events)){
+			if(!$.isPlainObject(events)){
 				return;
 			}
 			
-			_.each(events, function(value, key, list){
+			$.each(events, function(key, value){
 				var firstSpaceIndex = key.indexOf(' ');
 				var eventName = key.substr(0, firstSpaceIndex);
 				var targetSelector = key.substr(firstSpaceIndex+1);
 				var functionName = value || function(){};
 				
 				self.view.$el.find(targetSelector)
-				    .on(eventName, _.bind(self[functionName], self));
+				    .on(eventName, $.proxy(self[functionName], self));
 			});
 		},
 

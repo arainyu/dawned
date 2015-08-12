@@ -11,10 +11,9 @@ var rjs = {
 				"json2": "3rdlibs/json2",
 	            "R": "3rdlibs/require",
 	            '$': "3rdlibs/jquery-1.11.3.min",
-	            '_': "3rdlibs/underscore",
 	            "libs": "3rdlibs/libs",
 	            "text": "3rdlibs/require.text",
-	            "Handlebars": "3rdlibs/handlebars",
+	            "Handlebars": "3rdlibs/Handlebars",
 	            
 	            //core
 	            "CoreInherit": "core/class.inherit",
@@ -44,7 +43,6 @@ var rjs = {
 				'json2',
 				'R',
 				'$',
-				'_',
 				'libs',
 				'text',
 				'Handlebars',

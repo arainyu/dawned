@@ -160,13 +160,11 @@
 			if (!Dawned.notpackaged) {
 				define('$', function() {
 				});
-				define('_', function() {
-				});
 			}
-			require(['libs'], function() {
+			require(['$'], function() {
 				initMetaConfig($);
 				require(reqs, function() {
-					if (_.isFunction(arguments[arguments.length - 1])) {
+					if ($.isFunction(arguments[arguments.length - 1])) {
 						arguments[arguments.length - 1]();
 					}
 				});

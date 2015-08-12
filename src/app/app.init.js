@@ -15,7 +15,7 @@ define(['App'], function(App) {
 	}
 	
 	//TODO 这里需要注意了
-	Dawned.readyQueue && _.each(Dawned.readyQueue, function(fn) {
+	Dawned.readyQueue && $.each(Dawned.readyQueue, function(index, fn) {
 		Dawned.viewReady(fn);
 	});
 	

@@ -16,7 +16,7 @@ define([], function() {
 		 */
 		publish : function(eventName, args) {
 			if (queue[eventName]) {
-				_.each(queue[eventName], function(item) {
+				$.each(queue[eventName], function(index, item) {
 					item.handler.apply(item.scope ? item.scope : window, args);
 				});
 			}
@@ -46,10 +46,14 @@ define([], function() {
 		 */
 		unsubscribe : function(eventName, handler) {
 			if (queue[eventName]) {
+				var _queue = [];
 				if (handler) {
-					queue[eventName] = _.reject(queue[eventName], function(item) {
-						return item.handler == handler;
+					$.each(queue[eventName], function(index, item) {
+						if(item.handler == handler){
+							_queue.push(handler);
+						}
 					});
+					queue[eventName] = _queue;
 				} else {
 					delete queue[eventName];
 				}

@@ -122,21 +122,21 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 		},
 
 		excute : function(onSuccess, onError, onComplete, scope, onAbort, params) {
-			var params = params || _.clone(this.getParam() || {});
+			var params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
 			params.contentType = this.contentType;
 			this.isAbort = false;
 
-			var _onComplte = _.bind(function(xhr) {
+			var _onComplte = $.proxy(function(xhr) {
 				this._excuteComplete(xhr, onComplete, scope);
 			}, this);
 
-			var _onError = _.bind(function(e) {
+			var _onError = $.proxy(function(e) {
 				this._excuteError(onError, onAbort, scope, e);
 			}, this);
 
-			var _onSuccess = _.bind(function(data) {
+			var _onSuccess = $.proxy(function(data) {
 				this._excuteSuccess(data, onSuccess, scope);
 			}, this);
 

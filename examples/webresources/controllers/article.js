@@ -12,11 +12,11 @@ define(['CoreInherit', 'PageAbstractController', 'ViewArticle', 'ModelArticle'],
 		onRender : function() {
 			var model = new ModelArticle();
 
-			model.excute(_.bind(function(data) {
+			model.excute($.proxy(function(data) {
 				this.view.renderComments(data);
 			}, this));
 			
-			this.view.$el.find('.btn-back').on('click',_.bind(function(){
+			this.view.$el.find('.btn-back').on('click',$.proxy(function(){
 				this.goBack();
 			},this));
 		}
