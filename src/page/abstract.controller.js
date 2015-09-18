@@ -61,8 +61,8 @@ define(['CoreInherit'], function(CoreInherit) {
 					this.view.render(data);
 				}, this);
 
-				var error = $.proxy(function() {
-					this.view.loadModelFailed();
+				var error = $.proxy(function(err) {
+					this.view.loadModelFailed(err);
 				}, this);
 
 				this.model.excute(success, error, complete, this);
@@ -100,7 +100,7 @@ define(['CoreInherit'], function(CoreInherit) {
 		show : function() {
 			this.hideLoading();
 			this.view.show();
-			this.onHide && this.onHide();
+			this.onShow && this.onHide();
 		},
 
 		destroy : function() {
