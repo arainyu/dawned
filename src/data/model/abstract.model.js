@@ -57,7 +57,10 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			}
 		},
 
-		getParam : function() {
+		getParam : function(key) {
+		    if(typeof key === 'string'){
+		        return this.param[key];
+		    }
 			return this.param;
 		},
 
