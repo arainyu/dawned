@@ -84,7 +84,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			return validate;
 		},
 
-		_excuteSuccess : function(originalData, onSuccess, scope) {
+		_excuteSuccess : function(originalData, onSuccess, onError, scope) {
 
 			if (!this._validate(originalData)) {
 				if ( typeof onError === 'function') {
@@ -140,7 +140,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			}, this);
 
 			var _onSuccess = $.proxy(function(data) {
-				this._excuteSuccess(data, onSuccess, scope);
+				this._excuteSuccess(data, onSuccess, _onError, scope);
 			}, this);
 
 			if (this.contentType === AbstractModel.CONTENT_TYPE_JSON) {

@@ -136,7 +136,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 		this.goTo(controllerName);
 	};
 
-	App.prototype.jump = function() {
+	App.prototype.jump = function(url) {
 		var openUrl = url;
 		if (!Path.isUrl(url)) {
 			var domain = window.location.protocol + '//' + window.location.host;
