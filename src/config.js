@@ -33,6 +33,8 @@ define(function () {
             //utils
             'UtilsPath': Dawned.dir + "utils/path",
             'UtilsParser': Dawned.dir + "utils/parser",
+            'UtilsDate': Dawned.dir + "utils/date",
+            'UtilsObject': Dawned.dir + "utils/object",
             
             //app
             'AppStart': Dawned.dir + "app/app.start",
