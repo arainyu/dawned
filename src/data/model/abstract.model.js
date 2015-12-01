@@ -4,9 +4,9 @@
  * @namespace
  * @description
  */
-define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax, UtilsPath) {
+define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax, UtilsPath) {
 	var AbstractModel = CoreInherit.Class({
-		__constructor__ : function() {
+		__constructor__: function () {
 
 			this.url = null;
 			this.domain = null;
@@ -20,15 +20,16 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			this.ajax = null;
 			this.isAbort = false;
 
+			this.onBeforeSuccessCallback = null;
 		},
 
-		initialize : function(options) {
+		initialize: function (options) {
 			for (var key in options) {
 				this[key] = options[key];
 			}
 		},
 
-		buildurl : function() {
+		buildurl: function () {
 			var url = this.url;
 			if (UtilsPath.isUrl(url)) {
 				return url;
@@ -39,42 +40,42 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			}
 		},
 
-		setAttr : function(key, val) {
+		setAttr: function (key, val) {
 			this[key] = val;
 		},
 
-		pushValidates : function(handler) {
-			if ( typeof handler === 'function') {
+		pushValidates: function (handler) {
+			if (typeof handler === 'function') {
 				this.validates.push($.proxy(handler, this));
 			}
 		},
 
-		setParam : function(key, val) {
-			if ( typeof key === 'object' && !val) {
+		setParam: function (key, val) {
+			if (typeof key === 'object' && !val) {
 				this.param = key;
 			} else {
 				this.param[key] = val;
 			}
 		},
 
-		getParam : function(key) {
-		    if(typeof key === 'string'){
-		        return this.param[key];
-		    }
+		getParam: function (key) {
+			if (typeof key === 'string') {
+				return this.param[key];
+			}
 			return this.param;
 		},
 
-		getResult : function() {
+		getResult: function () {
 			return this.result;
 		},
 
-		_validate : function(data) {
+		_validate: function (data) {
 			var validate = true;
 			if (this.validates && this.validates.length > 0) {
 				for (var i = 0, len = this.validates.length; i < len; i++) {
 					var validates = this.validates[i](data);
 
-					if ( typeof validates === 'boolean' && !validates) {
+					if (typeof validates === 'boolean' && !validates) {
 						validate = false;
 						break;
 					}
@@ -84,10 +85,10 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			return validate;
 		},
 
-		_excuteSuccess : function(originalData, onSuccess, onError, scope) {
+		_excuteSuccess: function (originalData, onSuccess, onError, scope) {
 
 			if (!this._validate(originalData)) {
-				if ( typeof onError === 'function') {
+				if (typeof onError === 'function') {
 					return onError.call(scope || this, originalData);
 				} else {
 					return false;
@@ -96,50 +97,54 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 
 			var datamodel = typeof this.dataformat === 'function' ? this.dataformat(originalData) : originalData;
 
-			if ( typeof onSuccess === 'function') {
+			if (typeof this.onBeforeSuccessCallback === 'function') {
+				this.onBeforeSuccessCallback(datamodel);
+			}
+
+			if (typeof onSuccess === 'function') {
 				onSuccess.call(scope || this, datamodel, originalData);
 			}
 
 		},
 
-		_excuteComplete : function(xhr, onComplete, scope) {
-			if ( typeof onComplete === 'function') {
+		_excuteComplete: function (xhr, onComplete, scope) {
+			if (typeof onComplete === 'function') {
 				onComplete.call(scope || this, xhr);
 			}
 		},
 
-		_excuteError : function(onError, onAbort, scope, e) {
+		_excuteError: function (onError, onAbort, scope, e) {
 			if (this.isAbort) {
 				this.isAbort = false;
 
-				if ( typeof onAbort === 'function') {
+				if (typeof onAbort === 'function') {
 					return onAbort.call(scope || this, e);
 				} else {
 					return false;
 				}
 			}
 
-			if ( typeof onError === 'function') {
+			if (typeof onError === 'function') {
 				onError.call(scope || this, e);
 			}
 		},
 
-		excute : function(onSuccess, onError, onComplete, scope, onAbort, params) {
+		excute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
 			var params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
 			params.contentType = this.contentType;
 			this.isAbort = false;
 
-			var _onComplte = $.proxy(function(xhr) {
+			var _onComplte = $.proxy(function (xhr) {
 				this._excuteComplete(xhr, onComplete, scope);
 			}, this);
 
-			var _onError = $.proxy(function(e) {
+			var _onError = $.proxy(function (e) {
 				this._excuteError(onError, onAbort, scope, e);
 			}, this);
 
-			var _onSuccess = $.proxy(function(data) {
+			var _onSuccess = $.proxy(function (data) {
 				this._excuteSuccess(data, onSuccess, _onError, scope);
 			}, this);
 
@@ -152,13 +157,13 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax,
 			}
 		},
 
-		abort : function() {
+		abort: function () {
 			this.isAbort = true;
 			this.ajax && this.ajax.abort && this.ajax.abort();
 		}
 	});
 
-	AbstractModel.getInstance = function() {
+	AbstractModel.getInstance = function () {
 		if (this.instance instanceof this) {
 			return this.instance;
 		} else {

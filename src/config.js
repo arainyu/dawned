@@ -1,4 +1,6 @@
 define(function () {
+    var basePath = Dawned.dir;
+    
 	var configs = {
         waitSeconds: 20,
         shim: {
@@ -14,37 +16,49 @@ define(function () {
             }
         },
         paths: {
-            "json2": Dawned.dir + "3rdlibs/json2",
-            "R": Dawned.dir + "3rdlibs/require",
-            '$': Dawned.dir + "3rdlibs/jquery-1.11.3.min",
-            "text": Dawned.dir + "3rdlibs/require.text",
-            "Handlebars": Dawned.dir + "3rdlibs/handlebars",
+            "json2": basePath + "3rdlibs/json2",
+            "R": basePath + "3rdlibs/require",
+            '$': basePath + "3rdlibs/jquery-1.11.3.min",
+            "text": basePath + "3rdlibs/require.text",
+            "Handlebars": basePath + "3rdlibs/handlebars",
             
             //core
-            "CoreInherit": Dawned.dir + "core/class.inherit",
-            "CoreObserver": Dawned.dir + "core/observer",
-            "CoreAjax": Dawned.dir + "core/ajax",
+            "CoreInherit": basePath + "core/class.inherit",
+            "CoreObserver": basePath + "core/observer",
+            "CoreAjax": basePath + "core/ajax",
             
             //data
-            "AbstractModel": Dawned.dir + "data/model/abstract.model",
-            "AbstractStorage": Dawned.dir + "data/storage/abstract.storage",
-            "AbstractStore": Dawned.dir + "data/store/abstract.store",
+            "AbstractModel": basePath + "data/model/abstract.model",
+            "BaseModel": basePath + "data/model/base.model",
+            
+            "AbstractStorage": basePath + "data/storage/abstract.storage",
+            "LocalStorage": basePath + "data/storage/local.storage",
+            "SessionStorage": basePath + "data/storage/session.storage",
+            "MemoryStorage": basePath + "data/storage/memory.storage",
+            
+            "AbstractStore": basePath + "data/store/abstract.store",
+            "LocalStore": basePath + "data/store/local.store",
+            "SessionStore": basePath + "data/store/session.store",
+            "MemoryStore": basePath + "data/store/memory.store",
             
             //utils
-            'UtilsPath': Dawned.dir + "utils/path",
-            'UtilsParser': Dawned.dir + "utils/parser",
-            'UtilsDate': Dawned.dir + "utils/date",
-            'UtilsObject': Dawned.dir + "utils/object",
+            'UtilsPath': basePath + "utils/path",
+            'UtilsParser': basePath + "utils/parser",
+            'UtilsDate': basePath + "utils/date",
+            'UtilsObject': basePath + "utils/object",
             
             //app
-            'AppStart': Dawned.dir + "app/app.start",
-            'AppInit': Dawned.dir + "app/app.init",
-            'AbstractApp': Dawned.dir + "app/abstract.app",
-            'App': Dawned.dir + "app/app",
+            'AppStart': basePath + "app/app.start",
+            'AppInit': basePath + "app/app.init",
+            'AbstractApp': basePath + "app/abstract.app",
+            'App': basePath + "app/app",
             
             //page
-            'PageAbstractController': Dawned.dir + "page/abstract.controller",
-            'PageAbstractView': Dawned.dir + "page/abstract.view"
+            'PageAbstractController': basePath + "page/controller/abstract.controller",
+            'HandleBarController': basePath + "page/controller/handlebar.controller",
+            
+            'PageAbstractView': basePath + "page/view/abstract.view",
+            'HandleBarView': basePath + "page/view/handlebar.view"
         }
    };
     

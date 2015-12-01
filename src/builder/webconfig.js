@@ -27,12 +27,23 @@ var rjs = {
 	            
 	            //data
 	            "AbstractModel": "data/model/abstract.model",
+	            "BaseModel": "data/model/base.model",
+				
 	            "AbstractStorage": "data/storage/abstract.storage",
+	            "SessionStorage": "data/storage/session.storage",
+	            "LocalStorage": "data/storage/local.storage",
+	            "MemoryStorage": "data/storage/memory.storage",
+				
 	            "AbstractStore": "data/store/abstract.store",
+	            "LocalStore": "data/store/local.store",
+	            "SessionStore": "data/store/session.store",
+	            "MemoryStore": "data/store/memory.store",
 	            
 	            //utils
 	            'UtilsPath': "utils/path",
 	            'UtilsParser': "utils/parser",
+	            'UtilsDate': "utils/date",
+	            'UtilsObject': "utils/object",
 	            
 	            //app
 	            'AppStart': "app/app.start",
@@ -41,8 +52,10 @@ var rjs = {
 	            'App': "app/app",
 	            
 	            //page
-	            'PageAbstractController': "page/abstract.controller",
-	            'PageAbstractView': "page/abstract.view"
+	            'PageAbstractController': "page/controller/abstract.controller",
+	            'HandleBarController': "page/controller/handlebar.controller",
+	            'PageAbstractView': "page/view/abstract.view",
+	            'HandleBarView': "page/view/handlebar.view"
 			},
 			include: [
 				'json2',
@@ -60,19 +73,32 @@ var rjs = {
 				'CoreAjax',
 				
 				'AbstractModel',
-				'AbstractStorage',
-				'AbstractStore',
+	            "BaseModel",
+				
+	            "AbstractStorage",
+	            "SessionStorage",
+	            "LocalStorage",
+	            "MemoryStorage",
+				
+	            "AbstractStore",
+	            "LocalStore",
+	            "SessionStore",
+	            "MemoryStore",
 				
 				'UtilsPath',
 				'UtilsParser',
+	            'UtilsDate',
+	            'UtilsObject',
 				
 				'AppStart',
 				'AppInit',
 				'AbstractApp',
 				'App',
 				
-				'PageAbstractController',
-				'PageAbstractView'
+	            'PageAbstractController',
+	            'HandleBarController',
+	            'PageAbstractView',
+	            'HandleBarView'
 			],
 	        out: "<%= config.DEST_DIR %>/dawned.src.js"
        }

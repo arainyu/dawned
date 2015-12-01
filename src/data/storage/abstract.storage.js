@@ -8,9 +8,8 @@ define(['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
 	var AbstractStorage = CoreInherit.Class({
 
 		__constructor__: function () {
-			/**
-			 * 存儲倉代理，例如localstorage,sessionstorage,cookies 
-			 */
+			
+			//存儲倉代理，例如localstorage,sessionstorage,cookies
 			this.proxy = null;
 
 			this.cacheManagerKey = 'DAWNED_STORE_CACHE_MANAGER';
@@ -57,15 +56,16 @@ define(['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
 		},
 		
 		/*
+		* @description 将缓存的key和过期时间放到缓存中
 		* @param {String} key
 		* @param {String} timeout
-		* @description 将缓存的key和过期时间放到缓存中
 		*/
 		_setToCacheManager: function (key, timeout) {
 
 			if (!key || !timeout || UtilsDate.parse(timeout) < new Date()) {
 				return;
 			}
+			
 			var oldManagerStr = this.proxy.getItem(this.cacheManagerKey);
 			var oldManager = [];
 			var isKeyAlreadyIn = false;
@@ -117,13 +117,13 @@ define(['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
 		* @desctription 向Store中存放数据
 		* @param {String} key 数据Key值
 		* @param {Object} value 数据对象
-		* @param {Date} [timeout] 可选,数据失效时间,如不传,默认过期时间为当前日期过会30天
+		* @param {Date} [timeout] 可选,数据失效时间,如不传,默认过期时间为当前日期过会15天
 		* @param {String} [tag] 可选,数据版本标识,如传递此参数,在使用get()时,只有tag相符,才能取到数据
 		* @param {Date} [savedate] 可选,数据保存时间
 		* @return {Boolean} 成功true,失败false
 		*/
 		set: function (key, value, timeout, tag, savedate) {
-			var dateFormater = 'Y/m/d H:i:s';
+			var dateFormater = 'yyyy/m/d H:m:s';
 			var defaultTimeourDays = 15;
 			var formatTime, entity;
 
@@ -168,7 +168,7 @@ define(['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
 				if (result) {
 					result = JSON.parse(result);
 					isNotExpire = UtilsDate.parse(result.timeout) >= new Date();
-					isValidTag = (tag && tag === result.tag || !tag)
+					isValidTag = (!tag || (tag && tag === result.tag));
 
 					if (isNotExpire && isValidTag) {
 						value = result.value;

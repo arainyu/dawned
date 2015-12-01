@@ -7305,6 +7305,8 @@ return /******/ (function(modules) { // webpackBootstrap
 define("seed", function(){});
 
 define('config',[],function () {
+    var basePath = Dawned.dir;
+    
 	var configs = {
         waitSeconds: 20,
         shim: {
@@ -7320,35 +7322,49 @@ define('config',[],function () {
             }
         },
         paths: {
-            "json2": Dawned.dir + "3rdlibs/json2",
-            "R": Dawned.dir + "3rdlibs/require",
-            '$': Dawned.dir + "3rdlibs/jquery-1.11.3.min",
-            "text": Dawned.dir + "3rdlibs/require.text",
-            "Handlebars": Dawned.dir + "3rdlibs/handlebars",
+            "json2": basePath + "3rdlibs/json2",
+            "R": basePath + "3rdlibs/require",
+            '$': basePath + "3rdlibs/jquery-1.11.3.min",
+            "text": basePath + "3rdlibs/require.text",
+            "Handlebars": basePath + "3rdlibs/handlebars",
             
             //core
-            "CoreInherit": Dawned.dir + "core/class.inherit",
-            "CoreObserver": Dawned.dir + "core/observer",
-            "CoreAjax": Dawned.dir + "core/ajax",
+            "CoreInherit": basePath + "core/class.inherit",
+            "CoreObserver": basePath + "core/observer",
+            "CoreAjax": basePath + "core/ajax",
             
             //data
-            "AbstractModel": Dawned.dir + "data/model/abstract.model",
-            "AbstractStorage": Dawned.dir + "data/storage/abstract.storage",
-            "AbstractStore": Dawned.dir + "data/store/abstract.store",
+            "AbstractModel": basePath + "data/model/abstract.model",
+            "BaseModel": basePath + "data/model/base.model",
+            
+            "AbstractStorage": basePath + "data/storage/abstract.storage",
+            "LocalStorage": basePath + "data/storage/local.storage",
+            "SessionStorage": basePath + "data/storage/session.storage",
+            "MemoryStorage": basePath + "data/storage/memory.storage",
+            
+            "AbstractStore": basePath + "data/store/abstract.store",
+            "LocalStore": basePath + "data/store/local.store",
+            "SessionStore": basePath + "data/store/session.store",
+            "MemoryStore": basePath + "data/store/memory.store",
             
             //utils
-            'UtilsPath': Dawned.dir + "utils/path",
-            'UtilsParser': Dawned.dir + "utils/parser",
+            'UtilsPath': basePath + "utils/path",
+            'UtilsParser': basePath + "utils/parser",
+            'UtilsDate': basePath + "utils/date",
+            'UtilsObject': basePath + "utils/object",
             
             //app
-            'AppStart': Dawned.dir + "app/app.start",
-            'AppInit': Dawned.dir + "app/app.init",
-            'AbstractApp': Dawned.dir + "app/abstract.app",
-            'App': Dawned.dir + "app/app",
+            'AppStart': basePath + "app/app.start",
+            'AppInit': basePath + "app/app.init",
+            'AbstractApp': basePath + "app/abstract.app",
+            'App': basePath + "app/app",
             
             //page
-            'PageAbstractController': Dawned.dir + "page/abstract.controller",
-            'PageAbstractView': Dawned.dir + "page/abstract.view"
+            'PageAbstractController': basePath + "page/controller/abstract.controller",
+            'HandleBarController': basePath + "page/controller/handlebar.controller",
+            
+            'PageAbstractView': basePath + "page/view/abstract.view",
+            'HandleBarView': basePath + "page/view/handlebar.view"
         }
    };
     
@@ -7808,9 +7824,9 @@ define('UtilsPath',[], function() {
  * @namespace
  * @description
  */
-define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreInherit, CoreAjax, UtilsPath) {
+define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax, UtilsPath) {
 	var AbstractModel = CoreInherit.Class({
-		__constructor__ : function() {
+		__constructor__: function () {
 
 			this.url = null;
 			this.domain = null;
@@ -7824,15 +7840,16 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreIn
 			this.ajax = null;
 			this.isAbort = false;
 
+			this.onBeforeSuccessCallback = null;
 		},
 
-		initialize : function(options) {
+		initialize: function (options) {
 			for (var key in options) {
 				this[key] = options[key];
 			}
 		},
 
-		buildurl : function() {
+		buildurl: function () {
 			var url = this.url;
 			if (UtilsPath.isUrl(url)) {
 				return url;
@@ -7843,42 +7860,42 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreIn
 			}
 		},
 
-		setAttr : function(key, val) {
+		setAttr: function (key, val) {
 			this[key] = val;
 		},
 
-		pushValidates : function(handler) {
-			if ( typeof handler === 'function') {
+		pushValidates: function (handler) {
+			if (typeof handler === 'function') {
 				this.validates.push($.proxy(handler, this));
 			}
 		},
 
-		setParam : function(key, val) {
-			if ( typeof key === 'object' && !val) {
+		setParam: function (key, val) {
+			if (typeof key === 'object' && !val) {
 				this.param = key;
 			} else {
 				this.param[key] = val;
 			}
 		},
 
-		getParam : function(key) {
-		    if(typeof key === 'string'){
-		        return this.param[key];
-		    }
+		getParam: function (key) {
+			if (typeof key === 'string') {
+				return this.param[key];
+			}
 			return this.param;
 		},
 
-		getResult : function() {
+		getResult: function () {
 			return this.result;
 		},
 
-		_validate : function(data) {
+		_validate: function (data) {
 			var validate = true;
 			if (this.validates && this.validates.length > 0) {
 				for (var i = 0, len = this.validates.length; i < len; i++) {
 					var validates = this.validates[i](data);
 
-					if ( typeof validates === 'boolean' && !validates) {
+					if (typeof validates === 'boolean' && !validates) {
 						validate = false;
 						break;
 					}
@@ -7888,10 +7905,10 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreIn
 			return validate;
 		},
 
-		_excuteSuccess : function(originalData, onSuccess, scope) {
+		_excuteSuccess: function (originalData, onSuccess, onError, scope) {
 
 			if (!this._validate(originalData)) {
-				if ( typeof onError === 'function') {
+				if (typeof onError === 'function') {
 					return onError.call(scope || this, originalData);
 				} else {
 					return false;
@@ -7900,51 +7917,55 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreIn
 
 			var datamodel = typeof this.dataformat === 'function' ? this.dataformat(originalData) : originalData;
 
-			if ( typeof onSuccess === 'function') {
+			if (typeof this.onBeforeSuccessCallback === 'function') {
+				this.onBeforeSuccessCallback(datamodel);
+			}
+
+			if (typeof onSuccess === 'function') {
 				onSuccess.call(scope || this, datamodel, originalData);
 			}
 
 		},
 
-		_excuteComplete : function(xhr, onComplete, scope) {
-			if ( typeof onComplete === 'function') {
+		_excuteComplete: function (xhr, onComplete, scope) {
+			if (typeof onComplete === 'function') {
 				onComplete.call(scope || this, xhr);
 			}
 		},
 
-		_excuteError : function(onError, onAbort, scope, e) {
+		_excuteError: function (onError, onAbort, scope, e) {
 			if (this.isAbort) {
 				this.isAbort = false;
 
-				if ( typeof onAbort === 'function') {
+				if (typeof onAbort === 'function') {
 					return onAbort.call(scope || this, e);
 				} else {
 					return false;
 				}
 			}
 
-			if ( typeof onError === 'function') {
+			if (typeof onError === 'function') {
 				onError.call(scope || this, e);
 			}
 		},
 
-		excute : function(onSuccess, onError, onComplete, scope, onAbort, params) {
+		excute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
 			var params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
 			params.contentType = this.contentType;
 			this.isAbort = false;
 
-			var _onComplte = $.proxy(function(xhr) {
+			var _onComplte = $.proxy(function (xhr) {
 				this._excuteComplete(xhr, onComplete, scope);
 			}, this);
 
-			var _onError = $.proxy(function(e) {
+			var _onError = $.proxy(function (e) {
 				this._excuteError(onError, onAbort, scope, e);
 			}, this);
 
-			var _onSuccess = $.proxy(function(data) {
-				this._excuteSuccess(data, onSuccess, scope);
+			var _onSuccess = $.proxy(function (data) {
+				this._excuteSuccess(data, onSuccess, _onError, scope);
 			}, this);
 
 			if (this.contentType === AbstractModel.CONTENT_TYPE_JSON) {
@@ -7956,13 +7977,13 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreIn
 			}
 		},
 
-		abort : function() {
+		abort: function () {
 			this.isAbort = true;
 			this.ajax && this.ajax.abort && this.ajax.abort();
 		}
 	});
 
-	AbstractModel.getInstance = function() {
+	AbstractModel.getInstance = function () {
 		if (this.instance instanceof this) {
 			return this.instance;
 		} else {
@@ -7982,15 +8003,1056 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function(CoreIn
  * @namespace
  * @description
  */
-define('AbstractStorage',['CoreInherit'], function(CoreInherit){
-	var AbstractStorage = CoreInherit.Class({
-		
-		__constructor__: function(){
-			
+define('UtilsDate',['CoreInherit'], function (CoreInherit) {
+
+	var utils = {
+		isDate: function (input) {
+			return input instanceof Date || Object.prototype.toString.call(input) === '[object Date]';
+		},
+
+		getLeadingZeroNumer: function (number) {
+			if (number && number.toString().length < 2) {
+				number = '0' + number;
+			}
+
+			return number;
+		},
+
+		getHoursForTwelve: function (date) {
+			var hours = date.getHours();
+			if (hours >= 12) {
+				hours = hours - 12;
+			}
+			return hours;
+		},
+
+		parse: function (str) {
+			var date = new Date();
+
+			if (typeof str === 'string') {
+				str = str || '';
+				var regtime = /^(\d{4})\-?(\d{1,2})\-?(\d{1,2})/i;
+				var _date;
+				
+				if (str.match(regtime)) {
+					str = str.replace(regtime, "$2/$3/$1");
+				}
+				
+				_date = Date.parse(str);
+				
+				if(_date){
+					date = _date;
+				}
+				
+			} else if (typeof str === 'number') {
+				date =  Date(str);
+			}
+
+			return date;
 		}
+	};
+
+	var CoreDate = CoreInherit.Class({
+
+		__constructor__: function () {
+			this.date = new Date();
+
+			this.AbbreviatedDayNames = [];
+			this.DayNames = [];
+			this.AbbreviatedMonthNames = [];
+			this.MonthNames = [];
+		},
+
+		initialize: function (date) {
+
+			if (utils.isDate(date)) {
+				this.date = date;
+				return;
+			}
+
+			if (date && (typeof date === 'string')) {
+				date = date.replace(/-/g, '/');
+				this.date = new Date(date);
+			}
+		},
+
+		_formatDate: function (matchStr) {
+			var day = this.date.getDate();
+
+			switch (matchStr.length) {
+				case 2:
+					day = utils.getLeadingZeroNumer(this.date.getDate());
+					break;
+				case 3:
+					day = this.AbbreviatedDayNames[day];
+					break;
+				case 4:
+					day = this.DayNames[day];
+					break;
+
+				default:
+					break;
+			}
+
+			return day;
+		},
+
+		_formatMonth: function (matchStr) {
+			var month = this.date.getMonth();
+
+			switch (matchStr.length) {
+				case 2:
+					month = utils.getLeadingZeroNumer(month + 1);
+					break;
+				case 3:
+					month = this.AbbreviatedMonthNames[month];
+					break;
+				case 4:
+					month = this.MonthNames[month];
+					break;
+				default:
+					month = month + 1
+					break;
+			}
+
+			return month;
+
+		},
+
+		_formatYear: function (matchStr) {
+			var year = this.date.getYear();
+
+			if (matchStr.length === 4) {
+				year = this.date.getFullYear();
+			}
+
+			return year;
+		},
+
+		_formatHours: function (matchStr) {
+			var hours = this.date.getHours(this.date);
+			if (matchStr.lenght === 2) {
+				hours = utils.getLeadingZeroNumer(hours)
+			}
+			return hours;
+		},
+
+		_formatHoursForTwelve: function (matchStr) {
+			var hours = utils.getHoursForTwelve(this.date);
+
+			if (matchStr.lenght === 2) {
+				hours = utils.getLeadingZeroNumer(hours);
+			}
+
+			return hours;
+		},
+
+		_formatMinutes: function (matchStr) {
+			var minutes = this.date.getMinutes();
+
+			if (matchStr.lenght === 2) {
+				minutes = utils.getLeadingZeroNumer(minutes);
+			}
+
+			return minutes;
+		},
+
+		_formatSecords: function (matchStr) {
+			var secords = this.date.getSeconds();
+
+			if (matchStr.lenght === 2) {
+				secords = utils.getLeadingZeroNumer(secords);
+			}
+
+			return secords;
+		},
+				
+		/**
+		 * @description 格式化日期
+		 * @param {String} formatStr
+		 * @returns {CoreDate}
+		 */
+		format: function (formatStr) {
+			var format = formatStr;
+
+			var _maps = {
+				'd+': this._formatDay,
+				'M+': this._formatMonth,
+				'y+': this._formatYear,
+				'h+': this._formatHoursForTwelve,
+				'H+': this._formatHours,
+				'm+': this._formatMinutes,
+				's+': this._formatSecords
+			};
+
+			if (typeof formatStr !== 'string') {
+				format = '';
+			}
+
+			for (var key in _maps) {
+				if (new RegExp("(" + key + ")").test(format)) {
+					format = format.replace(RegExp.$1, _maps[key].call(this, RegExp.$1));
+				}
+			}
+
+			return format;
+		},
 		
+		/**
+		 * @description 当前时间加n年
+		 * @param {Number} number
+		 * @returns {CoreDate}
+		 */
+		addYears: function (number) {
+			var _number = number || 0;
+			this.date.setYear(this.date.getFullYear() + _number);
+			return this;
+		},
+		
+		/**
+		 * @description 当前时间加n月
+		 * @param {Number} number
+		 * @returns {CoreDate}
+		 */
+		addMonth: function (number) {
+			var _number = number || 0;
+			this.date.setMonth(this.date.getMonth() + _number);
+			return this;
+		},
+		
+		/**
+		 * @description 当前时间加n天
+		 * @param {Number} number
+		 * @returns {CoreDate}
+		 */
+		addDays: function (number) {
+			var _number = number || 0;
+			this.date.setDate(this.date.getDate() + _number);
+			return this;
+		},
+		
+		/**
+		 * @description 当前时间加n小时
+		 * @param {Number} number
+		 * @returns {CoreDate}
+		 */
+		addHours: function (number) {
+			var _number = number || 0;
+			this.date.setHours(this.date.getHours() + _number);
+			return this;
+		},
+		
+		/**
+		 * @description 当前时间加n分钟
+		 * @param {Number} number
+		 * @returns {CoreDate}
+		 */
+		addMinutes: function (number) {
+			var _number = number || 0;
+			this.date.setMinutes(this.date.getMinutes() + _number);
+			return this;
+		},
+		
+		/**
+		 * @description 当前时间加n秒
+		 * @param {Number} number
+		 * @returns {CoreDate}
+		 */
+		addSeconds: function (number) {
+			var _number = number || 0;
+			this.date.setSeconds(this.date.getSeconds() + _number);
+			return this;
+		},
+		
+		/**
+		 * @description 获取JS原生Date对象
+		 * @returns {Date}
+		 */
+		valueOf: function () {
+			return this.date;
+		},
+		
+		/**
+		 * @description 获取日期时间毫秒数
+		 * @returns {Number}
+		 */
+		getTime: function () {
+			return this.date.valueOf();
+		},
+		
+		/**
+		 * @description 获取utc日期字符串
+		 * @returns {String}
+		 */
+		toString: function () {
+			return this.date.toString();
+		}
+	});
+
+
+	CoreDate.isDate = utils.isDate;
+
+	CoreDate.parse = utils.parse;
+
+
+	return CoreDate;
+});
+
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+
+define('UtilsObject',[], function () {
+  var Obj = {}; 
+  
+  /**
+  * @description 设置对象某个路径上的值
+  * @param {object} obj
+  * @param {string} string
+  * @param {object|array|int} value
+  * @returns {object}
+  */
+  Obj.set = function (obj, path, value) {
+    if (!path) return null;
+
+    var array = path.split('.');
+
+    obj = obj || {};
+
+    for (var i = 0, len = array.length, last = Math.max(len - 1, 0); i < len; i++) {
+      if (i < last) {
+        obj = (obj[array[i]] = obj[array[i]] || {});
+      } else {
+        obj[array[i]] = value;
+      }
+    }
+
+    return obj;
+  };
+  
+  /**
+  * @description 获得对象在某个路径上的值
+  * @param {object} obj
+  * @param {string} path
+  * @returns {object}
+  */
+  Obj.get = function (obj, path) {
+    if (!obj || !path)
+      return null;
+
+    var array = path.split('.');
+
+    obj = obj || {};
+
+    for (var i = 0, len = array.length, last = Math.max(len - 1, 0); i < len; i++) {
+      obj = obj[array[i]];
+
+      if (obj === null || typeof obj === 'undefined') {
+        return null;
+      }
+    }
+
+    return obj;
+  };
+
+
+  return Obj;
+});
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+define('AbstractStore',['CoreInherit', 'UtilsDate', 'UtilsObject'], function (CoreInherit, UtilsDate, UtilsObject) {
+
+	var Store = CoreInherit.Class({
+		__constructor__: function () {
+			/*
+			 * 空对象
+			 */
+			this.NULL = {};
+			/**
+			 * Store键值
+			 */
+			this.key = this.NULL;
+
+			/**
+			 * 数据存活时间, 参数传递格式为“时间+时间单位",如30M
+			 * 时间单位有D:天,H:小时,M:分钟,S:秒,
+			 * 如过不传递时间单位,默认时间单位为M
+			 */
+			this.lifeTime = '30M';
+
+			/**
+			 * 默认返回数据
+			 */
+			this.defaultData = null;
+
+			/**
+			 * 本地存储仓库对象
+			 */
+			this.storeProxy = this.NULL;
+
+		},
+		
+		/**
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 * @param {Object} $super
+		 * @param {Object} options
+		 */
+		initialize: function ($super, options) {
+			for (var opt in options) {
+				this[opt] = options[opt];
+			}
+
+			if (this.key === this.NULL) {
+				throw 'key必须被重写';
+			}
+		},
+		
+		
+		/**
+		 * @description 向Store中添加数据
+		 * @param {Object} value 要添加的数据
+		 * @param {String} [tag] 数据标记，这里的tag，是在get()方法调用时起作用，当时间不过期时，参数中的tag和数据中tag不一致，则认为数据过期，tag一致则未过期。
+		 */
+		set: function (value, tag) {
+			var time = this._getNowTime();
+			var oldExprieTime = new UtilsDate(this.getExpireTime());
+			var oldTimeout = oldExprieTime.getTime();
+
+			time.addSeconds(this._getLifeTime());
+
+			if (time.getTime() < oldTimeout) {
+				time = oldExprieTime;
+			}
+
+			this.storeProxy.set(this.key, value, time, tag, null);
+		},
+
+		/**
+		 * @description 设置属性值
+		 * @param {String} attrName  支持通过路径的方式，如 setAttr('fullname.firstname.secordChar','d')
+		 * @param {Object} attrVal 属性值
+		 * @param {String|Number} tag 数据标记，这里的tag，是在get()方法调用时起作用，当时间不过期时，参数中的tag和数据中tag不一致，则认为数据过期，tag一致则未过期。
+		 */
+		setAttr: function (attrName, attrVal, tag) {
+			var obj;
+			
+			if ($.isPlainObject(attrName)) {
+				for (var i in attrName) {
+					if (attrName.hasOwnProperty(i)) {
+						this.setAttr(i, attrName[i], attrVal);
+					}
+				}
+				return;
+			}
+			
+			tag = tag || this.getTag();
+			obj = this.get(tag) || {};
+
+			if (obj) {
+				UtilsObject.set(obj, attrName, attrVal);
+				return this.set(obj, tag);
+			}
+			return false;
+		},
+
+		/**
+		 * @description 设置当前对象的过期时间
+		 * @param {String} lifeTime 字符串
+		 * @param {Boolean}  [override=false] 是否在当前时间点修改,如为否则在saveDate上修改,默认为false
+		 */
+		setLifeTime: function (lifeTime, override) {
+			this.lifeTime = lifeTime;
+			
+			var tag = this.getTag();
+			var value = this.get();
+			var time = this._getNowTime();
+			var stime;
+			
+			// 不覆盖保存时间， 在原时间点修改
+			if (!override) {
+				time = this.storeProxy.getSaveDate(this.key, true) || time;
+			}
+			
+			stime = (new UtilsDate(time.valueOf())).format('yyyy/m/d H:m:s');
+			time.addSeconds(this._getLifeTime());
+			
+			this.storeProxy.set(this.key, value, time, tag, stime);
+		},
+
+
+		/**
+		 * @description 获取已存取数据
+		 * @param {String|Number} [tag] 数据标记，当时间不过期时，参数中的tag和数据中tag不一致，则认为数据过期，tag一致则未过期。
+		 * @return {Object} result Store中存储的数据
+		 */
+		get: function (tag) {
+			var resultObj, resultType, resultIsSimpleType, isEmpty;
+			var result = this._getDefaultData();
+			
+			resultObj = this.storeProxy.get(this.key, tag);
+			resultType = typeof resultObj;
+			resultIsSimpleType = ({ 'string': true, 'number': true, 'boolean': true })[resultType];
+			
+			if (resultIsSimpleType) {
+				return resultObj;
+			}
+				
+			if (resultObj) {
+				if (Object.prototype.toString.call(resultObj) == '[object Array]') {
+					result = resultObj;
+				} else {
+					result = result || {};
+					CoreInherit.extend(result, resultObj);
+				}
+			}
+			
+			isEmpty = $.isEmptyObject(result);
+			
+			return isEmpty ? null : result;
+		},
+		
+		/**
+		 * @description 获取默认数据
+		*/
+		_getDefaultData: function(){
+			var result = null;
+			
+			if (Object.prototype.toString.call(this.defaultData) === '[object Array]') {
+				result = this.defaultData.slice(0);
+			} else if (this.defaultData) {
+				result = CoreInherit.extend({}, this.defaultData);
+			}
+			
+			return result;
+		},
+
+		/**
+		 * @description 获取已存取对象的属性
+		 * @param {String} attrName 支持通过路径的方式，如 getAttr('global.user.name')
+		 * @param {String|Number} [tag] 数据标记，当时间不过期时，参数中的tag和数据中tag不一致，则认为数据过期，tag一致则未过期。
+		 * @returns {Object} value 数据的属性值
+		 */
+		getAttr: function (attrName, tag) {
+			var obj = this.get(tag);
+			var attrVal = null;
+			
+			if (obj) {
+				attrVal = UtilsObject.get(obj, attrName);
+			}
+			
+			return attrVal;
+		},
+		
+		/**
+		 * @description 获取数据tag
+		 * @returns {String} tag 返回Store的版本标识
+		 */
+		getTag: function () {
+			return this.storeProxy.getTag(this.key);
+		},
+		
+		/**
+		 * @description 移除数据存储
+		 */
+		remove: function () {
+			this.storeProxy.remove(this.key);
+		},
+
+		/**
+		 * @description 移除存储对象的指定属性
+		 * @param {String} attrName
+		 */
+		removeAttr: function (attrName) {
+			var obj = this.get() || {};
+			if (obj[attrName]) {
+				delete obj[attrName];
+			}
+			this.set(obj);
+		},
+
+		/**
+	   	 * @description 返回失效时间
+		 * @returns {object} exprieTime 过期时间
+		 */
+		getExpireTime: function () {
+			var result = null;
+			try {
+				result = this.storeProxy.getExpireTime(this.key);
+			} catch (e) {
+				console && console.log(e);
+			}
+			return result;
+		},
+
+		/**
+		 * @description 设置过期时间
+		 * @param {Date} time 过期时间
+		 */
+		setExpireTime: function (time) {
+			var value = this.get();
+			var cTime = UtilsDate.parse(time);
+			this.storeProxy.set(this.key, value, cTime);
+		},
+
+		/*
+		 * @description 根据liftTime 计算要增加的秒数
+		 * @returns {number} 根据liftTime 计算要增加的秒数
+		 */
+		_getLifeTime: function () {
+			var timeout = 0;
+			var str = this.lifeTime + "";
+			var unit = str.charAt(str.length - 1);
+			var num = +str.substring(0, str.length - 1);
+			
+			if (typeof unit == 'number') {
+				num = +str;
+			} else {
+				unit = unit.toUpperCase();
+			}
+			
+			switch (unit) {
+				case 'D':
+					timeout = num * 24 * 60 * 60;
+					break;
+				case 'H':
+					timeout = num * 60 * 60;
+					break;
+				case 'M':
+					timeout = num * 60;
+					break;			
+				default:
+					timeout = num;
+					break;
+			}
+			
+			return timeout;
+		}
 	});
 	
+	/**
+	 * @description 单例方法,获取Store的实例
+	 * @returns {*}
+	 */
+	Store.getInstance = function () {
+		if (this.instance) {
+			return this.instance;
+		} else {
+			return this.instance = new this();
+		}
+	};
+
+	return Store;
+});
+
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], function (CoreInherit, AbstractModel, AbstractStore, UtilsObject) {
+    var Model = new CoreInherit.Class(AbstractModel, {
+	    /**
+	     * @method __propertys__
+	     * @description 复写自顶层Class的__propertys__，初始化队列
+	     * @private
+	     */
+		__propertys__: function () {
+		
+			// 自定义head结构
+			this.headinfo = null;
+			
+			// 查询结果
+			this.result = null;
+
+			// 请求如果返回auth是否，是否跳转至登录页
+			this.checkAuth = true;
+		},
+		
+	    /**
+	     * @description 复写自顶层Class的initialize，赋值队列
+	     * @param $super
+	     * @param options
+	     */
+		initialize: function ($super, options) {
+			$super(options);
+		},
+
+
+	    /**
+      	 * @description 用户数据，返回数据存储的tag
+	     * @returns {*|JSON.stringify}
+	     */
+		getTag: function () {
+			var params = this.getParamData();
+			return JSON.stringify(params);
+		},
+		/**
+		 * 获取查询参数，如果param设置的一个Store,则返回store的值
+		 * @returns {*}
+		 */
+		getParamData: function () {
+			var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
+			return  CoreInherit.extend({}, _params);
+		},
+
+
+		/**
+		 * @description 取model数据
+		 * @param onComplete 取完的回调函 传入的第一个参数为model的数第二个数据为元数据，元数据为ajax下发时的ServerCode,Message等数
+		 * @param onError 发生错误时的回调
+		 * @param ajaxOnly 可选，默认为false当为true时只使用ajax调取数据
+		 * @param scope 可选，设定回调函数this指向的对象
+		 * @param onAbort 可选，但取消时会调用的函数
+		 */
+		execute: function (onComplete, onError, ajaxOnly, scope, onAbort) {
+			
+			var params = this.getParamData();
+
+			// 获得storage的tag
+			var tag = this.getTag();
+			
+			// 从storage中获取上次请求的数据缓存
+			var cache = this.result && this.result.get(tag);
+
+			//如果没有缓存，或者指定网络请求，则发起ajax请求
+			if (!cache || this.ajaxOnly || ajaxOnly) {
+
+				if (this.method.toLowerCase() !== 'get' && this.contentType !== AbstractModel.CONTENT_TYPE_JSONP && this.headinfo) {
+					params.head = this.headinfo;
+				}
+
+				this.onBeforeSuccessCallback = function (datamodel) {
+					if (this.result instanceof AbstractStore) {
+						this.result.set(datamodel, tag);
+					}
+				}
+				
+				//调用父类的数据请求方法
+				this._execute(onComplete, onError, scope, onAbort, params)
+
+			} else {
+				if (typeof onComplete === 'function') {
+					onComplete.call(scope || this, cache);
+				}
+			}
+		},
+      
+		/**
+		 * 设置model 的param对象，有两种使用情况
+		 * 1. 当只传一个参数key，且key为对象，此时key为要设置的值
+		 * 2. 传两个参数，第一个参数key为字符串(允许.分隔),第二个参数val为要设置的值
+		 * 注意两次调用setParam,两次参数会做合并处理
+		 * @param {Object|string} key 参数，
+		 * @param {Object} [val] 参数值
+		 */
+		setParam: function (key, val) {
+			var param = {};
+			
+			if (typeof key === 'object' && !val) {
+				param = key;
+			} else {
+				param[key] = val;
+			}
+			
+			for (var i in param) {
+				if (this.param instanceof AbstractStore) {
+					this.param.setAttr(i, param[i]);
+				} else {
+					UtilsObject.set(this.param, i, param[i]);
+				}
+			}
+		},
+
+		/**
+		 * 清空结果数据
+		 * @method Model.cModel.clearResult
+		 */
+		clearResult: function () {
+			if (this.result && typeof this.result.remove === 'function') {
+				this.result.remove();
+			} else {
+				this.result = null;
+			}
+		}
+    });
+
+
+    return Model;
+});
+
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+define('AbstractStorage',['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
+	var AbstractStorage = CoreInherit.Class({
+
+		__constructor__: function () {
+			
+			//存儲倉代理，例如localstorage,sessionstorage,cookies
+			this.proxy = null;
+
+			this.cacheManagerKey = 'DAWNED_STORE_CACHE_MANAGER';
+		},
+		
+		/**
+		 * @param {Object} $super
+		 * @param {Object} options
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 */
+		initialize: function ($super, options) {
+			for (var opt in options) {
+				this[opt] = options[opt];
+			}
+		},
+		
+
+		/**
+		 *@description 删除过期缓存
+		 */
+		removeOverdueCache: function () {
+			var now = new UtilsDate().getTime();
+			var cacheManagerStr = this.proxy.getItem(this.cacheManagerKey);
+			var cacheManager = [];
+			var newCacheManager = [];
+
+			if (!cacheManagerStr) {
+				return;
+			}
+
+			cacheManager = JSON.parse(cacheManagerStr);
+
+			for (var i = 0, len = cacheManager.length, tempObj; i < len; i++) {
+				tempObj = cacheManager[i];
+
+				if (new UtilsDate(tempObj.timeout).getTime() < now) {
+					this.proxy.removeItem(tempObj.key);
+				} else {
+					newCacheManager.push(tempObj);
+				}
+			}
+
+			this.proxy.setItem(this.cacheManagerKey, JSON.stringify(newCacheManager));
+		},
+		
+		/*
+		* @description 将缓存的key和过期时间放到缓存中
+		* @param {String} key
+		* @param {String} timeout
+		*/
+		_setToCacheManager: function (key, timeout) {
+
+			if (!key || !timeout || UtilsDate.parse(timeout) < new Date()) {
+				return;
+			}
+			
+			var oldManagerStr = this.proxy.getItem(this.cacheManagerKey);
+			var oldManager = [];
+			var isKeyAlreadyIn = false;
+			var obj = {
+				key: key,
+				timeout: timeout
+			};
+
+			if (oldManagerStr) {
+				oldManager = JSON.parse(oldManagerStr);
+			}
+
+			for (var i = 0, tempObj; i < oldManager.length; i++) {
+				tempObj = oldManager[i];
+				if (tempObj.key == key) {
+					//更新最新的过期时间
+					oldManager[i] = obj;
+					isKeyAlreadyIn = true;
+				}
+			}
+
+			if (!isKeyAlreadyIn) {
+				oldManager.push(obj);
+			}
+
+			this.proxy.setItem(this.cacheManagerKey, JSON.stringify(oldManager));
+		},
+		
+		/**
+		* @desctription 创建存储对象
+		* @param {Object} value 数据对象
+		* @param {Date} [timeout] 可选,数据失效时间,如不传,默认过期时间为当前日期过会30天
+		* @param {String} [tag] 可选,数据版本标识,如传递此参数,在使用get()时,只有tag相符,才能取到数据
+		* @param {Date} [savedate] 可选,数据保存时间
+		* @return {Object} 存储对象
+		*/
+		_createStorageObj: function (value, timeout, tag, savedate) {
+			var obj = {
+				value: value,
+				timeout: timeout,
+				tag: tag,
+				savedate: savedate
+			}
+
+			return obj;
+		},
+		
+		/**
+		* @desctription 向Store中存放数据
+		* @param {String} key 数据Key值
+		* @param {Object} value 数据对象
+		* @param {Date} [timeout] 可选,数据失效时间,如不传,默认过期时间为当前日期过会15天
+		* @param {String} [tag] 可选,数据版本标识,如传递此参数,在使用get()时,只有tag相符,才能取到数据
+		* @param {Date} [savedate] 可选,数据保存时间
+		* @return {Boolean} 成功true,失败false
+		*/
+		set: function (key, value, timeout, tag, savedate) {
+			var dateFormater = 'yyyy/m/d H:m:s';
+			var defaultTimeourDays = 15;
+			var formatTime, entity;
+
+			savedate = savedate || (new UtilsDate()).format(dateFormater);
+
+			timeout = timeout ? new UtilsDate(timeout) : new UtilsDate().addDay(defaultTimeourDays);
+			formatTime = timeout.format(dateFormater);
+			
+			//将key和过期时间放到缓存管理器中
+			this._setToCacheManager(key, formatTime);
+
+			entity = this._createStorageObj(value, formatTime, tag, savedate);
+
+			try {
+				this.proxy.setItem(key, JSON.stringify(entity));
+				return true;
+			} catch (e) {
+				//localstorage写满时,全清掉
+				if (e.name == 'QuotaExceededError') {
+					this.clear();
+					this.set(key, value, timeout, tag, savedate);
+				}
+				console && console.log(e);
+			}
+			return false;
+		},
+
+		/**
+		 * @description 根据key获取value值,如指定的key或attrName未定义返回null
+		 * @param {String} key 数据Key会值
+		 * @param {String} tag 版本表示,如传递版本参数,则会验证保存的版本与参数是否相符,相符才返回数据,否则返回null,不传此参数
+		 * 则不会比较
+		 * @return {Object} 取回保存的数据
+		 */
+		get: function (key, tag) {
+			var value = null;
+			var result, isNotExpire, isValidTag;
+
+			try {
+				result = this.proxy.getItem(key);
+
+				if (result) {
+					result = JSON.parse(result);
+					isNotExpire = UtilsDate.parse(result.timeout) >= new Date();
+					isValidTag = (!tag || (tag && tag === result.tag));
+
+					if (isNotExpire && isValidTag) {
+						value = result.value;
+					}
+				}
+			} catch (e) {
+				console && console.log(e);
+			}
+			return value;
+		},
+
+		/**
+		 * @description 返回存放Storage的tag
+		 * @param {String} key 数据Key
+		 * @returns {String} 返回此Storager的版本标识
+		 */
+		getTag: function (key) {
+			var result, tag = null;
+
+			try {
+				result = this.proxy.getItem(key);
+				if (result) {
+					result = JSON.parse(result);
+					tag = result && result.tag
+				}
+			} catch (e) {
+				console && console.log(e);
+			}
+			return tag;
+		},
+
+		/**
+		 * @description 获得某个storage的保存时间
+		 * @param {String} key 数据key
+		 * @param {Boolean} useUtilsDate 是否返回UtilsDate类型,默认为false
+		 * @returns {UtilsDate|Number} 返回Store保存时间
+		 */
+		getSaveDate: function (key, useUtilsDate) {
+			var result, value = null;
+
+			try {
+				result = this.proxy.getItem(key);
+				if (result) {
+					result = JSON.parse(result);
+					if (result.savedate) {
+						value = UtilsDate.parse(result.savedate);
+						if (!useUtilsDate) {
+							value = value.valueOf();
+						}
+					}
+				}
+			} catch (e) {
+				console && console.log(e);
+			}
+			return value;
+		},
+
+		/**
+		 * @method Storage.cAbstractStorage.getExpireTime
+		 * @param {String} key storage key值
+		 * @return {Number} timeout 超时时间,距离1970年的毫秒数
+		 * @description 返回指定key的超时时间
+		 */
+		getExpireTime: function (key) {
+			var result = null, time = null;
+			try {
+				result = this.proxy.getItem(key);
+				if (result) {
+					result = JSON.parse(result);
+					time = Date.parse(result.timeout);
+				}
+			} catch (e) {
+				console && console.log(e);
+			}
+			return time;
+		},
+		
+		/**
+		 * @description 清除指定key
+		 * @param {String} key 数据key值
+		*/
+		remove: function (key) {
+			return this.proxy.removeItem(key);
+		},
+		
+	    /**
+		 * @description 清空所有storage内容
+		*/
+		clear: function () {
+			this.proxy.clear();
+		}
+
+	});
+
 	return AbstractStorage;
 });
 
@@ -8000,10 +9062,255 @@ define('AbstractStorage',['CoreInherit'], function(CoreInherit){
  * @namespace
  * @description
  */
-define('AbstractStore',[], function(){
-	
-});
 
+define('SessionStorage',['CoreInherit', 'AbstractStorage'], function (CoreInherit, AbstractStorage) {
+	var Storage = new CoreInherit.Class(AbstractStorage, {
+		__constructor__: function () {
+		},
+		
+		/**
+		 * @param {Object} $super
+		 * @param {Object} options
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 */
+		initialize: function ($super, options) {
+			this.proxy = window.sessionStorage;
+
+			$super(options);
+		},
+
+		originalGet: function (key) {
+			return window.sessionStorage.getItem(key);
+		},
+
+		originalSet: function (key, value) {
+			window.sessionStorage.setItem(key, value);
+		},
+
+		originalRemove: function (key) {
+			window.sessionStorage.removeItem(key);
+		}
+
+	});
+
+	Storage.getInstance = function () {
+		if (this.instance) {
+			return this.instance;
+		} else {
+			return this.instance = new this();
+		}
+	};
+
+	Storage.sessionStorage = Storage.getInstance();
+
+	return Storage;
+});
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+
+define('LocalStorage',['CoreInherit', 'UtilsDate', 'AbstractStorage'], function (CoreInherit, UtilsDate, AbstractStorage) {
+	var Storage = new CoreInherit.Class(AbstractStorage, {
+		__constructor__: function () {
+		},
+		
+		/**
+		 * @param {Object} $super
+		 * @param {Object} options
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 */
+		initialize: function ($super, options) {
+			this.proxy = window.localStorage;
+
+			$super(options);
+		},
+
+		originalGet: function (key) {
+			var value = localStorage.getItem(key);
+			var data = value ? JSON.parse(value) : null;
+			var now, timeout;
+
+			if (data && data.timeout) {
+				
+				/*验证是否过期*/
+				now = new Date();
+				timeout = UtilsDate.parse(data.timeout).valueOf();
+
+				if (timeout - UtilsDate.parse(UtilsDate.format(now, 'Y-m-d')).valueOf() >= 0) {
+					return data;
+				}
+
+				localStorage.removeItem(key);
+				return null;
+			}
+			return data;
+		},
+
+		originalSet: function (key, value) {
+			window.localStorage.setItem(key, value);
+		},
+
+		originalRemove: function (key) {
+			window.localStorage.removeItem(key);
+		}
+
+	});
+
+	Storage.getInstance = function () {
+		if (this.instance) {
+			return this.instance;
+		} else {
+			return this.instance = new this();
+		}
+	};
+
+	Storage.localStorage = Storage.getInstance();
+
+	return Storage;
+});
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+
+define('MemoryStorage',['CoreInherit', 'AbstractStorage'], function (CoreInherit, AbstractStorage) {
+	var MemoryStorage = {
+		dataMap: {},
+		setItem: function (key, val) {
+			this.dataMap[key] = val
+		},
+		getItem: function (key) {
+			return this.dataMap[key];
+		},
+		removeItem: function (key) {
+			delete this.dataMap[key]
+		},
+		clear: function () {
+			this.dataMap = {}
+		}
+	};
+	
+	var Storage = new CoreInherit.Class(AbstractStorage, {
+		__constructor__: function () {
+		},
+		
+		/**
+		 * @param {Object} $super
+		 * @param {Object} options
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 */
+		initialize: function ($super, options) {
+			this.proxy = MemoryStorage;
+
+			$super(options);
+		}
+
+	});
+
+	Storage.getInstance = function () {
+		if (this.instance) {
+			return this.instance;
+		} else {
+			return this.instance = new this();
+		}
+	};
+
+	Storage.memoryStorage = Storage.getInstance();
+
+	return Storage;
+});
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+
+define('LocalStore',['CoreInherit', 'LocalStorage', 'AbstractStore'], function (CoreInherit, LocalStorage, AbstractStore) {
+	
+	var _LocalStore = new CoreInherit.Class(AbstractStore, {
+		
+		__constructor__: function () {
+			
+			// 本地存储对象
+			this.sProxy = LocalStorage.getInstance();
+		},
+		
+		/**
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 * @param $super
+		 * @param options
+		 */
+		initialize: function ($super, options) {
+			$super(options);
+		}
+	});
+
+	return _LocalStore;
+});
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+
+define('SessionStore',['CoreInherit', 'SessionStorage', 'AbstractStore'], function (CoreInherit, SessionStorage, AbstractStore) {
+	
+	var _SessionStore = new CoreInherit.Class(AbstractStore, {
+		
+		__constructor__: function () {
+			
+			// 本地存储对象
+			this.sProxy = SessionStorage.getInstance();
+		},
+		
+		/**
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 * @param $super
+		 * @param options
+		 */
+		initialize: function ($super, options) {
+			$super(options);
+		}
+	});
+
+	return _SessionStore;
+});
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+
+define('MemoryStore',['CoreInherit', 'MemoryStorage', 'AbstractStore'], function (CoreInherit, MemoryStorage, AbstractStore) {
+	
+	var _MemoryStore = new CoreInherit.Class(AbstractStore, {
+		
+		__constructor__: function () {
+			
+			// 本地存储对象
+			this.sProxy = MemoryStorage.getInstance();
+		},
+		
+		/**
+		 * @description 复写自顶层Class的initialize，赋值队列
+		 * @param $super
+		 * @param options
+		 */
+		initialize: function ($super, options) {
+			$super(options);
+		}
+	});
+
+	return _MemoryStore;
+});
 /**
  * @copyright http://www.monring.com
  * @author arain.yu(abcily@126.com)
@@ -8159,7 +9466,7 @@ define('AbstractApp',['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 		this.goTo(controllerName);
 	};
 
-	App.prototype.jump = function() {
+	App.prototype.jump = function(url) {
 		var openUrl = url;
 		if (!Path.isUrl(url)) {
 			var domain = window.location.protocol + '//' + window.location.host;
@@ -8254,12 +9561,39 @@ define('AppStart',['AppInit'], function(appInit) {
  * @namespace
  * @description
  */
-define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
+define('PageAbstractView',['CoreInherit', 'Handlebars'], function (CoreInherit, Handlebars) {
+	var View = CoreInherit.Class({
+
+		__constructor__: function () {
+			this.template = function (tpl, data) {
+				return tpl;
+			}
+		},
+
+
+	});
+
+	return View;
+});
+
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit, UtilsParser, PageAbstractView) {
 	var Controller = CoreInherit.Class({
 
 		__constructor__ : function() {
 			this.view = null;
 			this.model = null;
+			
+			this.pageUrl = '';
+			this.id = UtilsParser.getViewId();
+			this.$el = $('<div id="'+this.id+'" />');
+			this.tpl = null;
+			
 			this.$viewport = null;
 			this.$loading = null;
 			this.name = null;
@@ -8271,11 +9605,12 @@ define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
 		onHide : null,
 		onShow : null,
 		onDestroy : null,
+		
 		events: {},
 
 		initialize : function($viewport) {
-			if (!this.view) {
-				throw '找不到相关view';
+			if (!this.view || !this.view instanceof PageAbstractView) {
+				throw '模版引擎不存在';
 			}
 			this.setViewport($viewport);
 		},
@@ -8292,8 +9627,11 @@ define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
 			this.onBeforeCreate && this.onBeforeCreate();
 
 			this.showLoading();
-			this.name = this.view.pageUrl = url;
-			this.view.create(this.$viewport);
+			this.name = this.pageUrl = url;			
+					
+			this.$el.attr('page-url',this.pageUrl).hide();
+			this.$el.appendTo(this.$viewport);
+			
 			this.onCreate && this.onCreate();
 
 			this.render();
@@ -8303,25 +9641,35 @@ define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
 
 			var complete = $.proxy(function(data) {
 				this.onRender && this.onRender();
+				
+				if(this.tpl){
+					this.$el.html(this.tpl);
+				}
+				
 				this._bindEvents();
 			}, this);
 			
 			if (this.model && this.model.url) {
+				
 				var success = $.proxy(function(data) {
-					this.view.render(data);
+					var html = this.view.templete(this.tpl, data);
+					this.$el.html(html);
 				}, this);
 
 				var error = $.proxy(function(err) {
-					this.view.loadModelFailed(err);
+					this.loadModelFailed(err);
 				}, this);
 
 				this.model.excute(success, error, complete, this);
 
 			} else {
-				this.view.render();
 				complete();
 			}
-		},		
+		},
+		
+		loadModelFailed: function(){
+			this.$el.html('请求失败');
+		},
 		
 		_bindEvents: function(){
 			var events = this.events,
@@ -8337,24 +9685,24 @@ define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
 				var targetSelector = key.substr(firstSpaceIndex+1);
 				var functionName = value || function(){};
 				
-				self.view.$el.find(targetSelector)
+				self.$el.find(targetSelector)
 				    .on(eventName, $.proxy(self[functionName], self));
 			});
 		},
 
 		hide : function() {
-			this.view.hide();
+			this.$el.hide();
 			this.onHide && this.onHide();
 		},
 
 		show : function() {
 			this.hideLoading();
-			this.view.show();
+			this.$el.show();
 			this.onShow && this.onHide();
 		},
 
 		destroy : function() {
-			this.view.destroy();
+			this.$el.remove();
 			this.onDestroy && this.onDestroy();
 		},
 
@@ -8386,7 +9734,7 @@ define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
 			Dawned.goBack(controllerName);
 		},
 		jump: function(url){
-			Dawned.jump(controllerName);
+			Dawned.jump(url);
 		}
 	});
 
@@ -8399,69 +9747,40 @@ define('PageAbstractController',['CoreInherit'], function(CoreInherit) {
  * @namespace
  * @description
  */
-define('PageAbstractView',['CoreInherit', 'UtilsParser', 'Handlebars'], function(CoreInherit, UtilsParser, Handlebars) {
-	var View = CoreInherit.Class({
-		
+define('HandleBarView',['CoreInherit', 'PageAbstractView', 'Handlebars'], function(CoreInherit, PageAbstractView, Handlebars) {
+	var View = CoreInherit.Class(PageAbstractView, {
 		__constructor__: function(){
-			this.pageUrl = '';
-			this.id = UtilsParser.getViewId();
-			this.$el = $('<div id="'+this.id+'" />');
-			this.els = {};
-			this.tplHtml = null;
-		},
-		
-		onBeforeCreate:null,
-		onCreate: null,
-		onRender: null,
-		onHide: null,
-		onShow: null,
-		onDestroy: null,
-		
-		events: {},
-		
-		create: function($viewport){
-			this.onBeforeCreate && this.onBeforeCreate();
-			
-			this.$el.attr('page-url',this.pageUrl).hide();
-			this.$el.appendTo($viewport);
-			
-			this.onCreate && this.onCreate();
-		},
-		
-		template: function(tpl, data){
-			var _tpl = Handlebars.compile(tpl);
-			return _tpl(data);
-		},
-		
-		render: function(model){
-			if(model && this.tplHtml){
-				this.$el.html(this.template(this.tplHtml, model));
+			this.template = function (tpl, data) {
+				var _tpl = Handlebars.compile(tpl);
+				return _tpl(data);
 			}
-			
-			this.onRender && this.onRender();
-			
-		},
-		
-		loadModelFailed: function(){
-			this.$el.html('请求失败');
-		},
-		
-		hide: function(){
-			this.$el.hide();
-			this.onHide && this.onHide();
-		},
-		
-		show: function(){
-			this.$el.show();
-			this.onShow && this.onShow();
-		},
-		
-		destroy: function(){
-			this.$el.remove();
-			this.onDestroy && this.onDestroy();
 		}
 	});
 	
+	View.getInstance = function () {
+		if (this.instance instanceof this) {
+			return this.instance;
+		} else {
+			return this.instance = new this;
+		}
+	};
+	
 	return View;
+});
+
+/**
+ * @copyright http://www.monring.com
+ * @author arain.yu(abcily@126.com)
+ * @namespace
+ * @description
+ */
+define('HandleBarController',['CoreInherit', 'PageAbstractController', 'HandleBarView'], function(CoreInherit, PageAbstractController, HandleBarView) {
+	var Controller = CoreInherit.Class(PageAbstractController, {
+		__constructor__: function(){
+			this.view = HandleBarView.getInstance();
+		}
+	});
+	
+	return Controller;
 });
 

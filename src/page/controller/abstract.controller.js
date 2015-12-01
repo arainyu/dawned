@@ -4,12 +4,18 @@
  * @namespace
  * @description
  */
-define(['CoreInherit'], function(CoreInherit) {
+define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit, UtilsParser, PageAbstractView) {
 	var Controller = CoreInherit.Class({
 
 		__constructor__ : function() {
 			this.view = null;
 			this.model = null;
+			
+			this.pageUrl = '';
+			this.id = UtilsParser.getViewId();
+			this.$el = $('<div id="'+this.id+'" />');
+			this.tpl = null;
+			
 			this.$viewport = null;
 			this.$loading = null;
 			this.name = null;
@@ -21,11 +27,12 @@ define(['CoreInherit'], function(CoreInherit) {
 		onHide : null,
 		onShow : null,
 		onDestroy : null,
+		
 		events: {},
 
 		initialize : function($viewport) {
-			if (!this.view) {
-				throw '找不到相关view';
+			if (!this.view || !this.view instanceof PageAbstractView) {
+				throw '模版引擎不存在';
 			}
 			this.setViewport($viewport);
 		},
@@ -42,8 +49,11 @@ define(['CoreInherit'], function(CoreInherit) {
 			this.onBeforeCreate && this.onBeforeCreate();
 
 			this.showLoading();
-			this.name = this.view.pageUrl = url;
-			this.view.create(this.$viewport);
+			this.name = this.pageUrl = url;			
+					
+			this.$el.attr('page-url',this.pageUrl).hide();
+			this.$el.appendTo(this.$viewport);
+			
 			this.onCreate && this.onCreate();
 
 			this.render();
@@ -53,25 +63,35 @@ define(['CoreInherit'], function(CoreInherit) {
 
 			var complete = $.proxy(function(data) {
 				this.onRender && this.onRender();
+				
+				if(this.tpl){
+					this.$el.html(this.tpl);
+				}
+				
 				this._bindEvents();
 			}, this);
 			
 			if (this.model && this.model.url) {
+				
 				var success = $.proxy(function(data) {
-					this.view.render(data);
+					var html = this.view.templete(this.tpl, data);
+					this.$el.html(html);
 				}, this);
 
 				var error = $.proxy(function(err) {
-					this.view.loadModelFailed(err);
+					this.loadModelFailed(err);
 				}, this);
 
 				this.model.excute(success, error, complete, this);
 
 			} else {
-				this.view.render();
 				complete();
 			}
-		},		
+		},
+		
+		loadModelFailed: function(){
+			this.$el.html('请求失败');
+		},
 		
 		_bindEvents: function(){
 			var events = this.events,
@@ -87,24 +107,24 @@ define(['CoreInherit'], function(CoreInherit) {
 				var targetSelector = key.substr(firstSpaceIndex+1);
 				var functionName = value || function(){};
 				
-				self.view.$el.find(targetSelector)
+				self.$el.find(targetSelector)
 				    .on(eventName, $.proxy(self[functionName], self));
 			});
 		},
 
 		hide : function() {
-			this.view.hide();
+			this.$el.hide();
 			this.onHide && this.onHide();
 		},
 
 		show : function() {
 			this.hideLoading();
-			this.view.show();
+			this.$el.show();
 			this.onShow && this.onHide();
 		},
 
 		destroy : function() {
-			this.view.destroy();
+			this.$el.remove();
 			this.onDestroy && this.onDestroy();
 		},
 
@@ -136,7 +156,7 @@ define(['CoreInherit'], function(CoreInherit) {
 			Dawned.goBack(controllerName);
 		},
 		jump: function(url){
-			Dawned.jump(controllerName);
+			Dawned.jump(url);
 		}
 	});
 
