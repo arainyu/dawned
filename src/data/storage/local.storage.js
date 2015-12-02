@@ -11,9 +11,9 @@ define(['CoreInherit', 'UtilsDate', 'AbstractStorage'], function (CoreInherit, U
 		},
 		
 		/**
+		 * @description 复写自顶层Class的initialize，赋值队列
 		 * @param {Object} $super
 		 * @param {Object} options
-		 * @description 复写自顶层Class的initialize，赋值队列
 		 */
 		initialize: function ($super, options) {
 			this.proxy = window.localStorage;

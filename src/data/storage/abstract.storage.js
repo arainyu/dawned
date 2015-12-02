@@ -16,9 +16,8 @@ define(['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
 		},
 		
 		/**
-		 * @param {Object} $super
-		 * @param {Object} options
 		 * @description 复写自顶层Class的initialize，赋值队列
+		 * @param {Object} options
 		 */
 		initialize: function ($super, options) {
 			for (var opt in options) {

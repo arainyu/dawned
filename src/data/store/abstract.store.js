@@ -169,6 +169,10 @@ define(['CoreInherit', 'UtilsDate', 'UtilsObject'], function (CoreInherit, Utils
 			
 			return result;
 		},
+		
+		_getNowTime: function(){
+			return new UtilsDate();
+		},
 
 		/**
 		 * @description 获取已存取对象的属性

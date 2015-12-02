@@ -12,7 +12,7 @@ define(['CoreInherit', 'LocalStorage', 'AbstractStore'], function (CoreInherit, 
 		__constructor__: function () {
 			
 			// 本地存储对象
-			this.sProxy = LocalStorage.getInstance();
+			this.storeProxy = LocalStorage.getInstance();
 		},
 		
 		/**

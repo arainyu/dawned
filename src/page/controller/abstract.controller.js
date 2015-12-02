@@ -31,7 +31,7 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		events: {},
 
 		initialize : function($viewport) {
-			if (!this.view || !this.view instanceof PageAbstractView) {
+			if (!this.view || !(this.view instanceof PageAbstractView)) {
 				throw '模版引擎不存在';
 			}
 			this.setViewport($viewport);
@@ -62,11 +62,12 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		render : function() {
 
 			var complete = $.proxy(function(data) {
-				this.onRender && this.onRender();
 				
 				if(this.tpl){
 					this.$el.html(this.tpl);
 				}
+				
+				this.onRender && this.onRender();
 				
 				this._bindEvents();
 			}, this);
@@ -89,10 +90,17 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 			}
 		},
 		
+		reRender: function(){
+			this._offEvents();
+			this.$el.empty();
+			this.render();
+		},
+		
 		loadModelFailed: function(){
 			this.$el.html('请求失败');
 		},
 		
+		_eventList: [],
 		_bindEvents: function(){
 			var events = this.events,
 				self = this;
@@ -107,8 +115,22 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 				var targetSelector = key.substr(firstSpaceIndex+1);
 				var functionName = value || function(){};
 				
+				self._eventList.push({
+					target: targetSelector,
+					eventName: eventName
+				});
+				
 				self.$el.find(targetSelector)
 				    .on(eventName, $.proxy(self[functionName], self));
+			});
+		},
+		
+		_offEvents: function(){
+			var self = this;
+			
+			$.each(self._eventList, function(key, value){
+				self.$el.find(value.target)
+				    .off(value.eventName);
 			});
 		},
 
@@ -120,10 +142,11 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		show : function() {
 			this.hideLoading();
 			this.$el.show();
-			this.onShow && this.onHide();
+			this.onShow && this.onShow();
 		},
 
 		destroy : function() {
+			this._offEvents();
 			this.$el.remove();
 			this.onDestroy && this.onDestroy();
 		},

@@ -28,13 +28,15 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	};
 
 	App.prototype.bindEvent = function() {
+		var self = this;
+		
 		this._hideHyperlink();
 
 		$(window).on('hashchange', $.proxy(function(e) {
 			var controllerName = Path.getControllerNameByHash(window.location.hash);
 
-			if (controllerName !== this.curController.name) {
-				this.loadView(controllerName);
+			if (!self.curController || controllerName !== self.curController.name) {
+				self.loadView(controllerName);
 			}
 		}, this));
 
@@ -156,9 +158,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			forward : self.forward,
 			back : self.back,
 			go : self.go,
-			jump : self.jump,
-			curController : self.curController,
-			controllers: self.controllers
+			jump : self.jump
 		};
 	};
 

@@ -77,7 +77,7 @@ define(['CoreInherit'], function (CoreInherit) {
 			}
 		},
 
-		_formatDate: function (matchStr) {
+		_formatDay: function (matchStr) {
 			var day = this.date.getDate();
 
 			switch (matchStr.length) {

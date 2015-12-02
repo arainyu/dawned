@@ -7420,15 +7420,35 @@ define('CoreInherit',[],function() {
       	parent.subclasses = [];
       }
 
-      var subclass = function() {};
-      subclass.prototype = parent.prototype;
-      klass.prototype = new subclass;
+      var SubClass = function() {};
+      SubClass.prototype = parent.prototype;
+      klass.prototype = new SubClass();
       parent.subclasses.push(klass);
     }
 
+    var ancestor = klass.superclass && klass.superclass.prototype;
+    var subclassfn = function (methodName, fn) {
+      return function () {
+        var scope = this;
+        var args = [function () {
+          return ancestor[methodName].apply(scope, arguments);
+        } ];
+        return fn.apply(this, args.concat(slice.call(arguments)));
+      };
+    };
  
     for (var k in properties) {
       var value = properties[k];
+      
+      //满足条件就重写
+      if (ancestor && typeof value == 'function') {
+        var argslist = /^\s*function\s*\(([^\(\)]*?)\)\s*?\{/i.exec(value.toString())[1].replace(/\s/i, '').split(',');
+        //只有在第一个参数为$super情况下才需要处理（是否具有重复方法需要用户自己决定）
+        if (argslist[0] === '$super' && ancestor[k]) {
+          value = subclassfn(k, value);
+        }
+      }
+      
       klass.prototype[k] = value;
     }
 
@@ -7443,7 +7463,7 @@ define('CoreInherit',[],function() {
     };
 
     //非原型属性也需要进行继承
-    for (key in parent) {
+    for (var key in parent) {
       if (parent.hasOwnProperty(key) && key !== 'prototype' && key !== 'superclass') {
         klass[key] = parent[key];
       }
@@ -8076,7 +8096,7 @@ define('UtilsDate',['CoreInherit'], function (CoreInherit) {
 			}
 		},
 
-		_formatDate: function (matchStr) {
+		_formatDay: function (matchStr) {
 			var day = this.date.getDate();
 
 			switch (matchStr.length) {
@@ -8532,6 +8552,10 @@ define('AbstractStore',['CoreInherit', 'UtilsDate', 'UtilsObject'], function (Co
 			
 			return result;
 		},
+		
+		_getNowTime: function(){
+			return new UtilsDate();
+		},
 
 		/**
 		 * @description 获取已存取对象的属性
@@ -8806,9 +8830,8 @@ define('AbstractStorage',['CoreInherit', 'UtilsDate'], function (CoreInherit, Ut
 		},
 		
 		/**
-		 * @param {Object} $super
-		 * @param {Object} options
 		 * @description 复写自顶层Class的initialize，赋值队列
+		 * @param {Object} options
 		 */
 		initialize: function ($super, options) {
 			for (var opt in options) {
@@ -9118,9 +9141,9 @@ define('LocalStorage',['CoreInherit', 'UtilsDate', 'AbstractStorage'], function 
 		},
 		
 		/**
+		 * @description 复写自顶层Class的initialize，赋值队列
 		 * @param {Object} $super
 		 * @param {Object} options
-		 * @description 复写自顶层Class的initialize，赋值队列
 		 */
 		initialize: function ($super, options) {
 			this.proxy = window.localStorage;
@@ -9238,7 +9261,7 @@ define('LocalStore',['CoreInherit', 'LocalStorage', 'AbstractStore'], function (
 		__constructor__: function () {
 			
 			// 本地存储对象
-			this.sProxy = LocalStorage.getInstance();
+			this.storeProxy = LocalStorage.getInstance();
 		},
 		
 		/**
@@ -9267,7 +9290,7 @@ define('SessionStore',['CoreInherit', 'SessionStorage', 'AbstractStore'], functi
 		__constructor__: function () {
 			
 			// 本地存储对象
-			this.sProxy = SessionStorage.getInstance();
+			this.storeProxy = SessionStorage.getInstance();
 		},
 		
 		/**
@@ -9296,7 +9319,7 @@ define('MemoryStore',['CoreInherit', 'MemoryStorage', 'AbstractStore'], function
 		__constructor__: function () {
 			
 			// 本地存储对象
-			this.sProxy = MemoryStorage.getInstance();
+			this.storeProxy = MemoryStorage.getInstance();
 		},
 		
 		/**
@@ -9358,13 +9381,15 @@ define('AbstractApp',['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	};
 
 	App.prototype.bindEvent = function() {
+		var self = this;
+		
 		this._hideHyperlink();
 
 		$(window).on('hashchange', $.proxy(function(e) {
 			var controllerName = Path.getControllerNameByHash(window.location.hash);
 
-			if (controllerName !== this.curController.name) {
-				this.loadView(controllerName);
+			if (!self.curController || controllerName !== self.curController.name) {
+				self.loadView(controllerName);
 			}
 		}, this));
 
@@ -9486,9 +9511,7 @@ define('AbstractApp',['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			forward : self.forward,
 			back : self.back,
 			go : self.go,
-			jump : self.jump,
-			curController : self.curController,
-			controllers: self.controllers
+			jump : self.jump
 		};
 	};
 
@@ -9609,7 +9632,7 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 		events: {},
 
 		initialize : function($viewport) {
-			if (!this.view || !this.view instanceof PageAbstractView) {
+			if (!this.view || !(this.view instanceof PageAbstractView)) {
 				throw '模版引擎不存在';
 			}
 			this.setViewport($viewport);
@@ -9640,11 +9663,12 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 		render : function() {
 
 			var complete = $.proxy(function(data) {
-				this.onRender && this.onRender();
 				
 				if(this.tpl){
 					this.$el.html(this.tpl);
 				}
+				
+				this.onRender && this.onRender();
 				
 				this._bindEvents();
 			}, this);
@@ -9667,10 +9691,17 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 			}
 		},
 		
+		reRender: function(){
+			this._offEvents();
+			this.$el.empty();
+			this.render();
+		},
+		
 		loadModelFailed: function(){
 			this.$el.html('请求失败');
 		},
 		
+		_eventList: [],
 		_bindEvents: function(){
 			var events = this.events,
 				self = this;
@@ -9685,8 +9716,22 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 				var targetSelector = key.substr(firstSpaceIndex+1);
 				var functionName = value || function(){};
 				
+				self._eventList.push({
+					target: targetSelector,
+					eventName: eventName
+				});
+				
 				self.$el.find(targetSelector)
 				    .on(eventName, $.proxy(self[functionName], self));
+			});
+		},
+		
+		_offEvents: function(){
+			var self = this;
+			
+			$.each(self._eventList, function(key, value){
+				self.$el.find(value.target)
+				    .off(value.eventName);
 			});
 		},
 
@@ -9698,10 +9743,11 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 		show : function() {
 			this.hideLoading();
 			this.$el.show();
-			this.onShow && this.onHide();
+			this.onShow && this.onShow();
 		},
 
 		destroy : function() {
+			this._offEvents();
 			this.$el.remove();
 			this.onDestroy && this.onDestroy();
 		},

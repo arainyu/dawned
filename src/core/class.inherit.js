@@ -44,15 +44,35 @@ define(function() {
       	parent.subclasses = [];
       }
 
-      var subclass = function() {};
-      subclass.prototype = parent.prototype;
-      klass.prototype = new subclass;
+      var SubClass = function() {};
+      SubClass.prototype = parent.prototype;
+      klass.prototype = new SubClass();
       parent.subclasses.push(klass);
     }
 
+    var ancestor = klass.superclass && klass.superclass.prototype;
+    var subclassfn = function (methodName, fn) {
+      return function () {
+        var scope = this;
+        var args = [function () {
+          return ancestor[methodName].apply(scope, arguments);
+        } ];
+        return fn.apply(this, args.concat(slice.call(arguments)));
+      };
+    };
  
     for (var k in properties) {
       var value = properties[k];
+      
+      //满足条件就重写
+      if (ancestor && typeof value == 'function') {
+        var argslist = /^\s*function\s*\(([^\(\)]*?)\)\s*?\{/i.exec(value.toString())[1].replace(/\s/i, '').split(',');
+        //只有在第一个参数为$super情况下才需要处理（是否具有重复方法需要用户自己决定）
+        if (argslist[0] === '$super' && ancestor[k]) {
+          value = subclassfn(k, value);
+        }
+      }
+      
       klass.prototype[k] = value;
     }
 
@@ -67,7 +87,7 @@ define(function() {
     };
 
     //非原型属性也需要进行继承
-    for (key in parent) {
+    for (var key in parent) {
       if (parent.hasOwnProperty(key) && key !== 'prototype' && key !== 'superclass') {
         klass[key] = parent[key];
       }
