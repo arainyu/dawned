@@ -122,7 +122,7 @@ define(['CoreInherit', 'UtilsDate'], function (CoreInherit, UtilsDate) {
 		* @return {Boolean} 成功true,失败false
 		*/
 		set: function (key, value, timeout, tag, savedate) {
-			var dateFormater = 'yyyy/m/d H:m:s';
+			var dateFormater = 'yyyy/MM/dd HH:mm:ss';
 			var defaultTimeourDays = 15;
 			var formatTime, entity;
 

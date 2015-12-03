@@ -23,6 +23,7 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 
 		onBeforeCreate : null,
 		onCreate : null,
+		onBeforeRender : null,
 		onRender : null,
 		onHide : null,
 		onShow : null,
@@ -60,12 +61,16 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		},
 
 		render : function() {
-
+			this.onBeforeRender && this.onBeforeRender();
+			
 			var complete = $.proxy(function(data) {
+				var html = this.tpl || '';
 				
-				if(this.tpl){
-					this.$el.html(this.tpl);
+				if(data){
+					html = this.view.template(this.tpl, data);
 				}
+				
+				this.$el.html(html);
 				
 				this.onRender && this.onRender();
 				
@@ -73,17 +78,12 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 			}, this);
 			
 			if (this.model && this.model.url) {
-				
-				var success = $.proxy(function(data) {
-					var html = this.view.templete(this.tpl, data);
-					this.$el.html(html);
-				}, this);
 
 				var error = $.proxy(function(err) {
 					this.loadModelFailed(err);
 				}, this);
-
-				this.model.excute(success, error, complete, this);
+				
+				this.model.execute(complete, error, false, this);
 
 			} else {
 				complete();

@@ -49,6 +49,15 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 			var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
 			return  CoreInherit.extend({}, _params);
 		},
+		
+		/**
+		 * 获取结果参数，如果param设置的一个Store,则返回store的值
+		 * @returns {*}
+		 */
+		getResult: function () {
+			var result = this.result instanceof AbstractStore ? this.result.get() : this.result;
+			return  CoreInherit.extend({}, result);
+		},
 
 
 		/**
@@ -79,11 +88,13 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 				this.onBeforeSuccessCallback = function (datamodel) {
 					if (this.result instanceof AbstractStore) {
 						this.result.set(datamodel, tag);
+					}else{
+						this.result = datamodel;
 					}
 				}
 				
 				//调用父类的数据请求方法
-				this._execute(onComplete, onError, scope, onAbort, params)
+				this._execute(onComplete, onError, null, scope, onAbort, params)
 
 			} else {
 				if (typeof onComplete === 'function') {

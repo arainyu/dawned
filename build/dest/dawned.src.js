@@ -7850,7 +7850,7 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreI
 
 			this.url = null;
 			this.domain = null;
-			this.param = null;
+			this.param = {};
 			this.dataformat = null;
 			this.validates = [];
 			this.protocol = (window.location.protocol.indexOf("https") > -1) ? "https" : "http";
@@ -7925,7 +7925,7 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreI
 			return validate;
 		},
 
-		_excuteSuccess: function (originalData, onSuccess, onError, scope) {
+		_executeSuccess: function (originalData, onSuccess, onError, scope) {
 
 			if (!this._validate(originalData)) {
 				if (typeof onError === 'function') {
@@ -7947,13 +7947,13 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreI
 
 		},
 
-		_excuteComplete: function (xhr, onComplete, scope) {
+		_executeComplete: function (xhr, onComplete, scope) {
 			if (typeof onComplete === 'function') {
 				onComplete.call(scope || this, xhr);
 			}
 		},
 
-		_excuteError: function (onError, onAbort, scope, e) {
+		_executeError: function (onError, onAbort, scope, e) {
 			if (this.isAbort) {
 				this.isAbort = false;
 
@@ -7969,7 +7969,7 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreI
 			}
 		},
 
-		excute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
+		_execute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
 			var params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
@@ -7977,15 +7977,15 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreI
 			this.isAbort = false;
 
 			var _onComplte = $.proxy(function (xhr) {
-				this._excuteComplete(xhr, onComplete, scope);
+				this._executeComplete(xhr, onComplete, scope);
 			}, this);
 
 			var _onError = $.proxy(function (e) {
-				this._excuteError(onError, onAbort, scope, e);
+				this._executeError(onError, onAbort, scope, e);
 			}, this);
 
 			var _onSuccess = $.proxy(function (data) {
-				this._excuteSuccess(data, onSuccess, _onError, scope);
+				this._executeSuccess(data, onSuccess, _onError, scope);
 			}, this);
 
 			if (this.contentType === AbstractModel.CONTENT_TYPE_JSON) {
@@ -8087,6 +8087,11 @@ define('UtilsDate',['CoreInherit'], function (CoreInherit) {
 
 			if (utils.isDate(date)) {
 				this.date = date;
+				return;
+			}
+			
+			if(date instanceof CoreDate){
+				this.date = date.date;
 				return;
 			}
 
@@ -8500,7 +8505,7 @@ define('AbstractStore',['CoreInherit', 'UtilsDate', 'UtilsObject'], function (Co
 				time = this.storeProxy.getSaveDate(this.key, true) || time;
 			}
 			
-			stime = (new UtilsDate(time.valueOf())).format('yyyy/m/d H:m:s');
+			stime = (new UtilsDate(time.valueOf())).format('yyyy/MM/dd HH:mm:ss');
 			time.addSeconds(this._getLifeTime());
 			
 			this.storeProxy.set(this.key, value, time, tag, stime);
@@ -8726,6 +8731,15 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 			var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
 			return  CoreInherit.extend({}, _params);
 		},
+		
+		/**
+		 * 获取结果参数，如果param设置的一个Store,则返回store的值
+		 * @returns {*}
+		 */
+		getResult: function () {
+			var result = this.result instanceof AbstractStore ? this.result.get() : this.result;
+			return  CoreInherit.extend({}, result);
+		},
 
 
 		/**
@@ -8756,11 +8770,13 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 				this.onBeforeSuccessCallback = function (datamodel) {
 					if (this.result instanceof AbstractStore) {
 						this.result.set(datamodel, tag);
+					}else{
+						this.result = datamodel;
 					}
 				}
 				
 				//调用父类的数据请求方法
-				this._execute(onComplete, onError, scope, onAbort, params)
+				this._execute(onComplete, onError, null, scope, onAbort, params)
 
 			} else {
 				if (typeof onComplete === 'function') {
@@ -8936,7 +8952,7 @@ define('AbstractStorage',['CoreInherit', 'UtilsDate'], function (CoreInherit, Ut
 		* @return {Boolean} 成功true,失败false
 		*/
 		set: function (key, value, timeout, tag, savedate) {
-			var dateFormater = 'yyyy/m/d H:m:s';
+			var dateFormater = 'yyyy/MM/dd HH:mm:ss';
 			var defaultTimeourDays = 15;
 			var formatTime, entity;
 
@@ -9588,11 +9604,20 @@ define('PageAbstractView',['CoreInherit', 'Handlebars'], function (CoreInherit, 
 	var View = CoreInherit.Class({
 
 		__constructor__: function () {
-			this.template = function (tpl, data) {
-				return tpl;
+		},
+		
+		initialize : function($viewport) {
+			if (!this.template || !$.isFunction(this.template)) {
+				throw '必须存在模版函数';
 			}
 		},
-
+		
+		/**
+		 * @description 必须在子类中重写的函数
+		*/
+		template: function (tpl, data) {
+			return tpl;
+		}
 
 	});
 
@@ -9624,6 +9649,7 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 
 		onBeforeCreate : null,
 		onCreate : null,
+		onBeforeRender : null,
 		onRender : null,
 		onHide : null,
 		onShow : null,
@@ -9661,12 +9687,16 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 		},
 
 		render : function() {
-
+			this.onBeforeRender && this.onBeforeRender();
+			
 			var complete = $.proxy(function(data) {
+				var html = this.tpl || '';
 				
-				if(this.tpl){
-					this.$el.html(this.tpl);
+				if(data){
+					html = this.view.template(this.tpl, data);
 				}
+				
+				this.$el.html(html);
 				
 				this.onRender && this.onRender();
 				
@@ -9674,17 +9704,12 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 			}, this);
 			
 			if (this.model && this.model.url) {
-				
-				var success = $.proxy(function(data) {
-					var html = this.view.templete(this.tpl, data);
-					this.$el.html(html);
-				}, this);
 
 				var error = $.proxy(function(err) {
 					this.loadModelFailed(err);
 				}, this);
-
-				this.model.excute(success, error, complete, this);
+				
+				this.model.execute(complete, error, false, this);
 
 			} else {
 				complete();
@@ -9793,16 +9818,17 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
  * @namespace
  * @description
  */
-define('HandleBarView',['CoreInherit', 'PageAbstractView', 'Handlebars'], function(CoreInherit, PageAbstractView, Handlebars) {
+define('HandleBarView',['CoreInherit', 'PageAbstractView', 'Handlebars'], function (CoreInherit, PageAbstractView, Handlebars) {
 	var View = CoreInherit.Class(PageAbstractView, {
-		__constructor__: function(){
-			this.template = function (tpl, data) {
-				var _tpl = Handlebars.compile(tpl);
-				return _tpl(data);
-			}
+		__constructor__: function () {
+		},
+		
+		template: function (tpl, data) {
+			var _tpl = Handlebars.compile(tpl);
+			return _tpl(data);
 		}
 	});
-	
+
 	View.getInstance = function () {
 		if (this.instance instanceof this) {
 			return this.instance;
@@ -9810,7 +9836,7 @@ define('HandleBarView',['CoreInherit', 'PageAbstractView', 'Handlebars'], functi
 			return this.instance = new this;
 		}
 	};
-	
+
 	return View;
 });
 

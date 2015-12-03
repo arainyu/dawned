@@ -70,6 +70,11 @@ define(['CoreInherit'], function (CoreInherit) {
 				this.date = date;
 				return;
 			}
+			
+			if(date instanceof CoreDate){
+				this.date = date.date;
+				return;
+			}
 
 			if (date && (typeof date === 'string')) {
 				date = date.replace(/-/g, '/');

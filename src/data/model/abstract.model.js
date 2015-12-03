@@ -10,7 +10,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax
 
 			this.url = null;
 			this.domain = null;
-			this.param = null;
+			this.param = {};
 			this.dataformat = null;
 			this.validates = [];
 			this.protocol = (window.location.protocol.indexOf("https") > -1) ? "https" : "http";
@@ -85,7 +85,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax
 			return validate;
 		},
 
-		_excuteSuccess: function (originalData, onSuccess, onError, scope) {
+		_executeSuccess: function (originalData, onSuccess, onError, scope) {
 
 			if (!this._validate(originalData)) {
 				if (typeof onError === 'function') {
@@ -107,13 +107,13 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax
 
 		},
 
-		_excuteComplete: function (xhr, onComplete, scope) {
+		_executeComplete: function (xhr, onComplete, scope) {
 			if (typeof onComplete === 'function') {
 				onComplete.call(scope || this, xhr);
 			}
 		},
 
-		_excuteError: function (onError, onAbort, scope, e) {
+		_executeError: function (onError, onAbort, scope, e) {
 			if (this.isAbort) {
 				this.isAbort = false;
 
@@ -129,7 +129,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax
 			}
 		},
 
-		excute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
+		_execute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
 			var params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
@@ -137,15 +137,15 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax
 			this.isAbort = false;
 
 			var _onComplte = $.proxy(function (xhr) {
-				this._excuteComplete(xhr, onComplete, scope);
+				this._executeComplete(xhr, onComplete, scope);
 			}, this);
 
 			var _onError = $.proxy(function (e) {
-				this._excuteError(onError, onAbort, scope, e);
+				this._executeError(onError, onAbort, scope, e);
 			}, this);
 
 			var _onSuccess = $.proxy(function (data) {
-				this._excuteSuccess(data, onSuccess, _onError, scope);
+				this._executeSuccess(data, onSuccess, _onError, scope);
 			}, this);
 
 			if (this.contentType === AbstractModel.CONTENT_TYPE_JSON) {

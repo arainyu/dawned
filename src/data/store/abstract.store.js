@@ -117,7 +117,7 @@ define(['CoreInherit', 'UtilsDate', 'UtilsObject'], function (CoreInherit, Utils
 				time = this.storeProxy.getSaveDate(this.key, true) || time;
 			}
 			
-			stime = (new UtilsDate(time.valueOf())).format('yyyy/m/d H:m:s');
+			stime = (new UtilsDate(time.valueOf())).format('yyyy/MM/dd HH:mm:ss');
 			time.addSeconds(this._getLifeTime());
 			
 			this.storeProxy.set(this.key, value, time, tag, stime);
