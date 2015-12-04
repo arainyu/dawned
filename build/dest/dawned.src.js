@@ -7970,7 +7970,7 @@ define('AbstractModel',['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreI
 		},
 
 		_execute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
-			var params = params || $.extend({}, this.getParam());
+			params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
 			params.contentType = this.contentType;
@@ -8689,11 +8689,10 @@ define('AbstractStore',['CoreInherit', 'UtilsDate', 'UtilsObject'], function (Co
 define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], function (CoreInherit, AbstractModel, AbstractStore, UtilsObject) {
     var Model = new CoreInherit.Class(AbstractModel, {
 	    /**
-	     * @method __propertys__
-	     * @description 复写自顶层Class的__propertys__，初始化队列
+	     * @description 复写自顶层Class的__constructor__，初始化队列
 	     * @private
 	     */
-		__propertys__: function () {
+		__constructor__: function () {
 		
 			// 自定义head结构
 			this.headinfo = null;
@@ -8703,6 +8702,8 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 
 			// 请求如果返回auth是否，是否跳转至登录页
 			this.checkAuth = true;
+
+			this.onBeforeExecute = null;
 		},
 		
 	    /**
@@ -8729,7 +8730,7 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 		 */
 		getParamData: function () {
 			var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
-			return  CoreInherit.extend({}, _params);
+			return CoreInherit.extend({}, _params);
 		},
 		
 		/**
@@ -8738,7 +8739,7 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 		 */
 		getResult: function () {
 			var result = this.result instanceof AbstractStore ? this.result.get() : this.result;
-			return  CoreInherit.extend({}, result);
+			return CoreInherit.extend({}, result);
 		},
 
 
@@ -8751,7 +8752,10 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 		 * @param onAbort 可选，但取消时会调用的函数
 		 */
 		execute: function (onComplete, onError, ajaxOnly, scope, onAbort) {
-			
+			if (typeof this.onBeforeExecute === 'function') {
+				this.onBeforeExecute.call(scope || this);
+			}
+
 			var params = this.getParamData();
 
 			// 获得storage的tag
@@ -8762,15 +8766,17 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 
 			//如果没有缓存，或者指定网络请求，则发起ajax请求
 			if (!cache || this.ajaxOnly || ajaxOnly) {
-
+				var headinfo = this.headinfo instanceof AbstractStore ? this.headinfo.get() : this.headinfo;
 				if (this.method.toLowerCase() !== 'get' && this.contentType !== AbstractModel.CONTENT_TYPE_JSONP && this.headinfo) {
-					params.head = this.headinfo;
+					params.head = headinfo;
+				} else {
+					CoreInherit.extend(params, headinfo);
 				}
 
 				this.onBeforeSuccessCallback = function (datamodel) {
 					if (this.result instanceof AbstractStore) {
 						this.result.set(datamodel, tag);
-					}else{
+					} else {
 						this.result = datamodel;
 					}
 				}
@@ -8795,13 +8801,13 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 		 */
 		setParam: function (key, val) {
 			var param = {};
-			
+
 			if (typeof key === 'object' && !val) {
 				param = key;
 			} else {
 				param[key] = val;
 			}
-			
+
 			for (var i in param) {
 				if (this.param instanceof AbstractStore) {
 					this.param.setAttr(i, param[i]);
@@ -9397,10 +9403,11 @@ define('AbstractApp',['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	};
 
 	App.prototype.bindEvent = function() {
-		var self = this;
+		//var self = this;
 		
 		this._hideHyperlink();
-
+		
+		/*
 		$(window).on('hashchange', $.proxy(function(e) {
 			var controllerName = Path.getControllerNameByHash(window.location.hash);
 
@@ -9408,6 +9415,7 @@ define('AbstractApp',['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 				self.loadView(controllerName);
 			}
 		}, this));
+		*/
 
 	};
 

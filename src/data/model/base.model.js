@@ -7,11 +7,10 @@
 define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], function (CoreInherit, AbstractModel, AbstractStore, UtilsObject) {
     var Model = new CoreInherit.Class(AbstractModel, {
 	    /**
-	     * @method __propertys__
-	     * @description 复写自顶层Class的__propertys__，初始化队列
+	     * @description 复写自顶层Class的__constructor__，初始化队列
 	     * @private
 	     */
-		__propertys__: function () {
+		__constructor__: function () {
 		
 			// 自定义head结构
 			this.headinfo = null;
@@ -21,6 +20,8 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 
 			// 请求如果返回auth是否，是否跳转至登录页
 			this.checkAuth = true;
+
+			this.onBeforeExecute = null;
 		},
 		
 	    /**
@@ -47,7 +48,7 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 		 */
 		getParamData: function () {
 			var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
-			return  CoreInherit.extend({}, _params);
+			return CoreInherit.extend({}, _params);
 		},
 		
 		/**
@@ -56,7 +57,7 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 		 */
 		getResult: function () {
 			var result = this.result instanceof AbstractStore ? this.result.get() : this.result;
-			return  CoreInherit.extend({}, result);
+			return CoreInherit.extend({}, result);
 		},
 
 
@@ -69,7 +70,10 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 		 * @param onAbort 可选，但取消时会调用的函数
 		 */
 		execute: function (onComplete, onError, ajaxOnly, scope, onAbort) {
-			
+			if (typeof this.onBeforeExecute === 'function') {
+				this.onBeforeExecute.call(scope || this);
+			}
+
 			var params = this.getParamData();
 
 			// 获得storage的tag
@@ -80,15 +84,17 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 
 			//如果没有缓存，或者指定网络请求，则发起ajax请求
 			if (!cache || this.ajaxOnly || ajaxOnly) {
-
+				var headinfo = this.headinfo instanceof AbstractStore ? this.headinfo.get() : this.headinfo;
 				if (this.method.toLowerCase() !== 'get' && this.contentType !== AbstractModel.CONTENT_TYPE_JSONP && this.headinfo) {
-					params.head = this.headinfo;
+					params.head = headinfo;
+				} else {
+					CoreInherit.extend(params, headinfo);
 				}
 
 				this.onBeforeSuccessCallback = function (datamodel) {
 					if (this.result instanceof AbstractStore) {
 						this.result.set(datamodel, tag);
-					}else{
+					} else {
 						this.result = datamodel;
 					}
 				}
@@ -113,13 +119,13 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 		 */
 		setParam: function (key, val) {
 			var param = {};
-			
+
 			if (typeof key === 'object' && !val) {
 				param = key;
 			} else {
 				param[key] = val;
 			}
-			
+
 			for (var i in param) {
 				if (this.param instanceof AbstractStore) {
 					this.param.setAttr(i, param[i]);

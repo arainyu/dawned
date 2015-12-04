@@ -28,10 +28,11 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 	};
 
 	App.prototype.bindEvent = function() {
-		var self = this;
+		//var self = this;
 		
 		this._hideHyperlink();
-
+		
+		/*
 		$(window).on('hashchange', $.proxy(function(e) {
 			var controllerName = Path.getControllerNameByHash(window.location.hash);
 
@@ -39,6 +40,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 				self.loadView(controllerName);
 			}
 		}, this));
+		*/
 
 	};
 

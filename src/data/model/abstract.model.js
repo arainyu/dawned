@@ -130,7 +130,7 @@ define(['CoreInherit', 'CoreAjax', 'UtilsPath'], function (CoreInherit, CoreAjax
 		},
 
 		_execute: function (onSuccess, onError, onComplete, scope, onAbort, params) {
-			var params = params || $.extend({}, this.getParam());
+			params = params || $.extend({}, this.getParam());
 			var url = this.buildurl();
 
 			params.contentType = this.contentType;
