@@ -21,8 +21,6 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 			this.name = null;
 		},
 
-		onBeforeCreate : null,
-		onCreate : null,
 		onBeforeRender : null,
 		onRender : null,
 		onHide : null,
@@ -47,15 +45,12 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		},
 
 		create : function(url) {
-			this.onBeforeCreate && this.onBeforeCreate();
 
 			this.showLoading();
 			this.name = this.pageUrl = url;			
 					
 			this.$el.attr('page-url',this.pageUrl).hide();
 			this.$el.appendTo(this.$viewport);
-			
-			this.onCreate && this.onCreate();
 
 			this.render();
 		},

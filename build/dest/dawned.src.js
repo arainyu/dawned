@@ -8762,7 +8762,7 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 			var tag = this.getTag();
 			
 			// 从storage中获取上次请求的数据缓存
-			var cache = this.result && this.result.get(tag);
+			var cache = this.result instanceof AbstractStore ? this.result.get(tag) : this.result;
 
 			//如果没有缓存，或者指定网络请求，则发起ajax请求
 			if (!cache || this.ajaxOnly || ajaxOnly) {
@@ -9655,8 +9655,6 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 			this.name = null;
 		},
 
-		onBeforeCreate : null,
-		onCreate : null,
 		onBeforeRender : null,
 		onRender : null,
 		onHide : null,
@@ -9681,15 +9679,12 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 		},
 
 		create : function(url) {
-			this.onBeforeCreate && this.onBeforeCreate();
 
 			this.showLoading();
 			this.name = this.pageUrl = url;			
 					
 			this.$el.attr('page-url',this.pageUrl).hide();
 			this.$el.appendTo(this.$viewport);
-			
-			this.onCreate && this.onCreate();
 
 			this.render();
 		},

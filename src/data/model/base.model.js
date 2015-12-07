@@ -80,7 +80,7 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
 			var tag = this.getTag();
 			
 			// 从storage中获取上次请求的数据缓存
-			var cache = this.result && this.result.get(tag);
+			var cache = this.result instanceof AbstractStore ? this.result.get(tag) : this.result;
 
 			//如果没有缓存，或者指定网络请求，则发起ajax请求
 			if (!cache || this.ajaxOnly || ajaxOnly) {
