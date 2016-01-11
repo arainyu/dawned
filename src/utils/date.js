@@ -137,7 +137,7 @@ define(['CoreInherit'], function (CoreInherit) {
 
 		_formatHours: function (matchStr) {
 			var hours = this.date.getHours(this.date);
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				hours = utils.getLeadingZeroNumer(hours)
 			}
 			return hours;
@@ -146,7 +146,7 @@ define(['CoreInherit'], function (CoreInherit) {
 		_formatHoursForTwelve: function (matchStr) {
 			var hours = utils.getHoursForTwelve(this.date);
 
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				hours = utils.getLeadingZeroNumer(hours);
 			}
 
@@ -156,7 +156,7 @@ define(['CoreInherit'], function (CoreInherit) {
 		_formatMinutes: function (matchStr) {
 			var minutes = this.date.getMinutes();
 
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				minutes = utils.getLeadingZeroNumer(minutes);
 			}
 
@@ -166,7 +166,7 @@ define(['CoreInherit'], function (CoreInherit) {
 		_formatSecords: function (matchStr) {
 			var secords = this.date.getSeconds();
 
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				secords = utils.getLeadingZeroNumer(secords);
 			}
 

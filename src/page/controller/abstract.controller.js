@@ -81,7 +81,7 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 				this.model.execute(complete, error, false, this);
 
 			} else {
-				complete();
+				complete(this.model);
 			}
 		},
 		
@@ -149,9 +149,6 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		showLoading : function() {
 			if (this.$loading) {
 				this.$loading.show();
-			} else {
-				this.$loading = $('<div>加载中...</div>');
-				this.$viewport.append(this.$loading);
 			}
 		},
 

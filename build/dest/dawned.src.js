@@ -8156,7 +8156,7 @@ define('UtilsDate',['CoreInherit'], function (CoreInherit) {
 
 		_formatHours: function (matchStr) {
 			var hours = this.date.getHours(this.date);
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				hours = utils.getLeadingZeroNumer(hours)
 			}
 			return hours;
@@ -8165,7 +8165,7 @@ define('UtilsDate',['CoreInherit'], function (CoreInherit) {
 		_formatHoursForTwelve: function (matchStr) {
 			var hours = utils.getHoursForTwelve(this.date);
 
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				hours = utils.getLeadingZeroNumer(hours);
 			}
 
@@ -8175,7 +8175,7 @@ define('UtilsDate',['CoreInherit'], function (CoreInherit) {
 		_formatMinutes: function (matchStr) {
 			var minutes = this.date.getMinutes();
 
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				minutes = utils.getLeadingZeroNumer(minutes);
 			}
 
@@ -8185,7 +8185,7 @@ define('UtilsDate',['CoreInherit'], function (CoreInherit) {
 		_formatSecords: function (matchStr) {
 			var secords = this.date.getSeconds();
 
-			if (matchStr.lenght === 2) {
+			if (matchStr.length === 2) {
 				secords = utils.getLeadingZeroNumer(secords);
 			}
 
@@ -8692,55 +8692,63 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 	     * @description 复写自顶层Class的__constructor__，初始化队列
 	     * @private
 	     */
-		__constructor__: function () {
+        __constructor__: function () {
 		
-			// 自定义head结构
-			this.headinfo = null;
+            // 自定义head结构
+            this.headinfo = null;
 			
-			// 查询结果
-			this.result = null;
+            // 查询结果
+            this.result = null;
 
-			// 请求如果返回auth是否，是否跳转至登录页
-			this.checkAuth = true;
+            // 请求如果返回auth是否，是否跳转至登录页
+            this.checkAuth = true;
 
-			this.onBeforeExecute = null;
-		},
+            this.onBeforeExecute = null;
+        },
 		
 	    /**
 	     * @description 复写自顶层Class的initialize，赋值队列
 	     * @param $super
 	     * @param options
 	     */
-		initialize: function ($super, options) {
-			$super(options);
-		},
+        initialize: function ($super, options) {
+            $super(options);
+        },
 
 
 	    /**
       	 * @description 用户数据，返回数据存储的tag
 	     * @returns {*|JSON.stringify}
 	     */
-		getTag: function () {
-			var params = this.getParamData();
-			return JSON.stringify(params);
-		},
+        getTag: function () {
+            var params = this.getParamData();
+            return JSON.stringify(params);
+        },
 		/**
 		 * 获取查询参数，如果param设置的一个Store,则返回store的值
 		 * @returns {*}
 		 */
-		getParamData: function () {
-			var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
-			return CoreInherit.extend({}, _params);
-		},
+        getParamData: function () {
+            var _params = this.param instanceof AbstractStore ? this.param.get() : this.param;
+            var headinfo = this.headinfo instanceof AbstractStore ? this.headinfo.get() : this.headinfo;
+            
+            if (this.method.toLowerCase() !== 'get' && this.contentType !== AbstractModel.CONTENT_TYPE_JSONP && this.headinfo) {
+                _params.head = headinfo;
+            } else {
+                CoreInherit.extend(_params, headinfo);
+            }
+
+            return CoreInherit.extend({}, _params);
+        },
 		
 		/**
 		 * 获取结果参数，如果param设置的一个Store,则返回store的值
 		 * @returns {*}
 		 */
-		getResult: function () {
-			var result = this.result instanceof AbstractStore ? this.result.get() : this.result;
-			return CoreInherit.extend({}, result);
-		},
+        getResult: function () {
+            var result = this.result instanceof AbstractStore ? this.result.get() : this.result;
+            return CoreInherit.extend({}, result);
+        },
 
 
 		/**
@@ -8751,45 +8759,39 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 		 * @param scope 可选，设定回调函数this指向的对象
 		 * @param onAbort 可选，但取消时会调用的函数
 		 */
-		execute: function (onComplete, onError, ajaxOnly, scope, onAbort) {
-			if (typeof this.onBeforeExecute === 'function') {
-				this.onBeforeExecute.call(scope || this);
-			}
+        execute: function (onComplete, onError, ajaxOnly, scope, onAbort) {
+            if (typeof this.onBeforeExecute === 'function') {
+                this.onBeforeExecute.call(scope || this);
+            }
 
-			var params = this.getParamData();
+            var params = this.getParamData();
 
-			// 获得storage的tag
-			var tag = this.getTag();
+            // 获得storage的tag
+            var tag = this.getTag();
 			
-			// 从storage中获取上次请求的数据缓存
-			var cache = this.result instanceof AbstractStore ? this.result.get(tag) : this.result;
+            // 从storage中获取上次请求的数据缓存; 如果不存储到storage中就不存在缓存概念
+            var cache = this.result instanceof AbstractStore && this.result.get(tag);
 
-			//如果没有缓存，或者指定网络请求，则发起ajax请求
-			if (!cache || this.ajaxOnly || ajaxOnly) {
-				var headinfo = this.headinfo instanceof AbstractStore ? this.headinfo.get() : this.headinfo;
-				if (this.method.toLowerCase() !== 'get' && this.contentType !== AbstractModel.CONTENT_TYPE_JSONP && this.headinfo) {
-					params.head = headinfo;
-				} else {
-					CoreInherit.extend(params, headinfo);
-				}
+            //如果没有缓存，或者指定网络请求，则发起ajax请求
+            if (!cache || this.ajaxOnly || ajaxOnly) {
 
-				this.onBeforeSuccessCallback = function (datamodel) {
-					if (this.result instanceof AbstractStore) {
-						this.result.set(datamodel, tag);
-					} else {
-						this.result = datamodel;
-					}
-				}
+                this.onBeforeSuccessCallback = function (datamodel) {
+                    if (this.result instanceof AbstractStore) {
+                        this.result.set(datamodel, tag);
+                    } else {
+                        this.result = datamodel;
+                    }
+                }
 				
-				//调用父类的数据请求方法
-				this._execute(onComplete, onError, null, scope, onAbort, params)
+                //调用父类的数据请求方法
+                this._execute(onComplete, onError, null, scope, onAbort, params)
 
-			} else {
-				if (typeof onComplete === 'function') {
-					onComplete.call(scope || this, cache);
-				}
-			}
-		},
+            } else {
+                if (typeof onComplete === 'function') {
+                    onComplete.call(scope || this, cache);
+                }
+            }
+        },
       
 		/**
 		 * 设置model 的param对象，有两种使用情况
@@ -8799,35 +8801,35 @@ define('BaseModel',['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObjec
 		 * @param {Object|string} key 参数，
 		 * @param {Object} [val] 参数值
 		 */
-		setParam: function (key, val) {
-			var param = {};
+        setParam: function (key, val) {
+            var param = {};
 
-			if (typeof key === 'object' && !val) {
-				param = key;
-			} else {
-				param[key] = val;
-			}
+            if (typeof key === 'object' && !val) {
+                param = key;
+            } else {
+                param[key] = val;
+            }
 
-			for (var i in param) {
-				if (this.param instanceof AbstractStore) {
-					this.param.setAttr(i, param[i]);
-				} else {
-					UtilsObject.set(this.param, i, param[i]);
-				}
-			}
-		},
+            for (var i in param) {
+                if (this.param instanceof AbstractStore) {
+                    this.param.setAttr(i, param[i]);
+                } else {
+                    UtilsObject.set(this.param, i, param[i]);
+                }
+            }
+        },
 
 		/**
 		 * 清空结果数据
 		 * @method Model.cModel.clearResult
 		 */
-		clearResult: function () {
-			if (this.result && typeof this.result.remove === 'function') {
-				this.result.remove();
-			} else {
-				this.result = null;
-			}
-		}
+        clearResult: function () {
+            if (this.result && typeof this.result.remove === 'function') {
+                this.result.remove();
+            } else {
+                this.result = null;
+            }
+        }
     });
 
 
@@ -9442,7 +9444,7 @@ define('AbstractApp',['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			if (needhandle) {
 				var href = el.attr('href');
 
-				if (href.indexOf('#') > -1) {
+				if (!href || href.indexOf('#') > -1) {
 					e.preventDefault();
 				}
 			}
@@ -9715,7 +9717,7 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 				this.model.execute(complete, error, false, this);
 
 			} else {
-				complete();
+				complete(this.model);
 			}
 		},
 		
@@ -9783,9 +9785,6 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 		showLoading : function() {
 			if (this.$loading) {
 				this.$loading.show();
-			} else {
-				this.$loading = $('<div>加载中...</div>');
-				this.$viewport.append(this.$loading);
 			}
 		},
 

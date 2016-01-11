@@ -67,7 +67,7 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 			if (needhandle) {
 				var href = el.attr('href');
 
-				if (href.indexOf('#') > -1) {
+				if (!href || href.indexOf('#') > -1) {
 					e.preventDefault();
 				}
 			}
