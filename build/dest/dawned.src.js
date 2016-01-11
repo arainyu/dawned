@@ -9652,9 +9652,13 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 			this.$el = $('<div id="'+this.id+'" />');
 			this.tpl = null;
 			
-			this.$viewport = null;
-			this.$loading = null;
 			this.name = null;
+			this.$viewport = null;
+            
+			this.$loading = null;
+            this.loadingTimeoutTimer = null;
+            this.showLoadingTimer = null;
+            this.hideLoadingTimer = null;
 		},
 
 		onBeforeRender : null,
@@ -9781,16 +9785,48 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 			this.$el.remove();
 			this.onDestroy && this.onDestroy();
 		},
+        
+        _clearLoadingTimer: function(){
+            // 如果已经触发显示，同样清除timer，保证loading的最后一次执行loading和隐藏之间最大时间为20秒
+            if(this.loadingTimeoutTimer){
+                clearTimeout(this.loadingTimeoutTimer);
+            }
+            
+        },
 
 		showLoading : function() {
-			if (this.$loading) {
-				this.$loading.show();
+            var self = this;
+            
+            // 如果已经触发隐藏，就取消隐藏触发，重新显示进度条
+            if(this.hideLoadingTimer){
+                clearTimeout(this.hideLoadingTimer);
+            }
+            
+            this._clearLoadingTimer();
+            
+			if (this.$loading && !this.showLoadingTimer) {
+                
+                this.showLoadingTimer = setTimeout(function(){
+                    self.$loading.show();
+                }, 500);
+                
+                // 限制loading只能持续显示20秒，20秒没隐藏可能是代码报错了
+                this.loadingTimeoutTimer = setTimeout(function(){
+                    self.hide();
+                }, 20000);
 			}
 		},
 
 		hideLoading : function() {
-			if (this.$loading) {
-				this.$loading.hide();
+            var self = this;
+            
+            this._clearLoadingTimer();
+            
+			if (this.$loading && !this.hideLoadingTimer) {
+                
+                this.hideLoadingTimer = setTimeout(function(){
+                    self.$loading.hide();
+                }, 500);
 			}
 		},
 
