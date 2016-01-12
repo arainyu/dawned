@@ -9715,7 +9715,7 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
 			if (this.model && this.model.url) {
 
 				var error = $.proxy(function(err) {
-					this.loadModelFailed(err);
+					this.loadModelFailed.call(this, err);
 				}, this);
 				
 				this.model.execute(complete, error, false, this);
@@ -9790,17 +9790,31 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
             // 如果已经触发显示，同样清除timer，保证loading的最后一次执行loading和隐藏之间最大时间为20秒
             if(this.loadingTimeoutTimer){
                 clearTimeout(this.loadingTimeoutTimer);
+                this.loadingTimeoutTimer = null;
             }
+        },
+        
+        _clearHideLoadingTimer: function(){
             
+            if(this.hideLoadingTimer){
+                clearTimeout(this.hideLoadingTimer);
+                this.hideLoadingTimer = null;
+            }
+        },
+        
+        _clearShowLoadingTimer: function(){
+            
+            if(this.showLoadingTimer){
+                clearTimeout(this.showLoadingTimer);
+                this.showLoadingTimer = null;
+            }
         },
 
 		showLoading : function() {
             var self = this;
             
             // 如果已经触发隐藏，就取消隐藏触发，重新显示进度条
-            if(this.hideLoadingTimer){
-                clearTimeout(this.hideLoadingTimer);
-            }
+            this._clearHideLoadingTimer();
             
             this._clearLoadingTimer();
             
@@ -9808,11 +9822,13 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
                 
                 this.showLoadingTimer = setTimeout(function(){
                     self.$loading.show();
-                }, 500);
+                    self._clearShowLoadingTimer();
+                }, 200);
                 
                 // 限制loading只能持续显示20秒，20秒没隐藏可能是代码报错了
                 this.loadingTimeoutTimer = setTimeout(function(){
-                    self.hide();
+                    self.$loading.hide();
+                    self._clearLoadingTimer();
                 }, 20000);
 			}
 		},
@@ -9824,9 +9840,12 @@ define('PageAbstractController',['CoreInherit', 'UtilsParser', 'PageAbstractView
             
 			if (this.$loading && !this.hideLoadingTimer) {
                 
+                self._clearShowLoadingTimer();
+                
                 this.hideLoadingTimer = setTimeout(function(){
                     self.$loading.hide();
-                }, 500);
+                    self._clearHideLoadingTimer();
+                }, 200);
 			}
 		},
 
