@@ -70,6 +70,8 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 				}
 				
 				this.$el.html(html);
+                
+			    this.hideLoading();
 				
 				this.onRender && this.onRender();
 				
@@ -139,7 +141,6 @@ define(['CoreInherit', 'UtilsParser', 'PageAbstractView'], function(CoreInherit,
 		},
 
 		show : function() {
-			this.hideLoading();
 			this.$el.show();
 			this.onShow && this.onShow();
 		},

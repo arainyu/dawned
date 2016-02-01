@@ -80,20 +80,22 @@ define(['CoreObserver', 'UtilsPath'], function(Observer, Path) {
 
 	App.prototype.loadView = function(controllerName) {
 		var self = this;
-		var controller = self.controllers[controllerName];
+        var qMarkIndex = controllerName.indexOf('?');
+        var _controllerName = qMarkIndex>-1?controllerName.substring(0, qMarkIndex):controllerName;
+		var controller = self.controllers[_controllerName];
 
 		if (controller) {
 			this.switchView(controller, this.curController);
 		} else {
 			var ext = Dawned.controllersPath.indexOf('/') === 0 ? '.js' : '';
-			var controllerPath = Dawned.controllersPath + controllerName + ext;
+			var controllerPath = Dawned.controllersPath + _controllerName + ext;
 			require([controllerPath], function(Controller) {
 				controller = new Controller(App.defaults.$viewport);
-				controller.create(controllerName);
+				controller.create(_controllerName);
 
 				self.switchView(controller, self.curController);
 
-				self.controllers[controllerName] = self.curController;
+				self.controllers[_controllerName] = self.curController;
 
 			});
 		}
