@@ -136,6 +136,21 @@ define(['CoreInherit', 'AbstractModel', 'AbstractStore', 'UtilsObject'], functio
                 }
             }
         },
+        
+        /**
+		 * 獲取參數值
+		 * @method Model.cModel.clearResult
+		 */
+        getParam: function(key){
+            
+            var param = this.param instanceof AbstractStore ? this.param.get() : this.param;
+            
+            if (typeof key === 'string') {
+				return param[key];
+			}
+			return param;
+            
+        },        
 
 		/**
 		 * 清空结果数据
